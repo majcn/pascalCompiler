@@ -1,0 +1,10 @@
+# Eclipse
+.classpath
+.project
+bin/**
+
+# External tool builders
+.externalToolBuilders/
+
+# Custom
+PascalLex.java
