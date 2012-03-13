@@ -7,4 +7,6 @@ bin/**
 .externalToolBuilders/
 
 # Custom
+lexanal.xml
 PascalLex.java
+*.pascal
