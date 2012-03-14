@@ -53,7 +53,7 @@ identifier = {letter}({letter}|{digit}|[_])*
 <YYINITIAL> {
 	[ \n\t]+		{ }
 
-	"{"			{ stComment++; yybegin(COMMENT); }
+	"{"				{ stComment++; yybegin(COMMENT); }
 
 	"and"			{ return sym(PascalTok.AND); }
 	"array"			{ return sym(PascalTok.ARRAY); }
@@ -80,25 +80,25 @@ identifier = {letter}({letter}|{digit}|[_])*
 	"while"			{ return sym(PascalTok.WHILE); }
 
 	":="			{ return sym(PascalTok.ASSIGN); }
-	":"			{ return sym(PascalTok.COLON); }
-	","			{ return sym(PascalTok.COMMA); }
-	"."			{ return sym(PascalTok.DOT); }
+	":"				{ return sym(PascalTok.COLON); }
+	","				{ return sym(PascalTok.COMMA); }
+	"."				{ return sym(PascalTok.DOT); }
 	".."			{ return sym(PascalTok.DOTS); }
-	"["			{ return sym(PascalTok.LBRACKET); }
-	"("			{ return sym(PascalTok.LPARENTHESIS); }
-	"]"			{ return sym(PascalTok.RBRACKET); }
-	")"			{ return sym(PascalTok.RPARENTHESIS); }
-	";"			{ return sym(PascalTok.SEMIC); }
-	"+"			{ return sym(PascalTok.ADD); }
-	"="			{ return sym(PascalTok.EQU); }
+	"["				{ return sym(PascalTok.LBRACKET); }
+	"("				{ return sym(PascalTok.LPARENTHESIS); }
+	"]"				{ return sym(PascalTok.RBRACKET); }
+	")"				{ return sym(PascalTok.RPARENTHESIS); }
+	";"				{ return sym(PascalTok.SEMIC); }
+	"+"				{ return sym(PascalTok.ADD); }
+	"="				{ return sym(PascalTok.EQU); }
 	">="			{ return sym(PascalTok.GEQ); }
-	">"			{ return sym(PascalTok.GTH); }
-	"<"			{ return sym(PascalTok.LTH); }
+	">"				{ return sym(PascalTok.GTH); }
+	"<"				{ return sym(PascalTok.LTH); }
 	"<="			{ return sym(PascalTok.LEQ); }
-	"*"			{ return sym(PascalTok.MUL); }
+	"*"				{ return sym(PascalTok.MUL); }
 	"<>"			{ return sym(PascalTok.NEQ); }
-	"^"			{ return sym(PascalTok.PTR); }
-	"-"			{ return sym(PascalTok.SUB); }
+	"^"				{ return sym(PascalTok.PTR); }
+	"-"				{ return sym(PascalTok.SUB); }
 
 	"boolean"		{ return sym(PascalTok.BOOL); }
 	{boolean}		{ return sym(PascalTok.BOOL_CONST); }
@@ -109,13 +109,13 @@ identifier = {letter}({letter}|{digit}|[_])*
 	"integer"		{ return sym(PascalTok.INT); }
 	{integer}		{ return sym(PascalTok.INT_CONST); }
 
-	{identifier}		{ return sym(PascalTok.IDENTIFIER); }
+	{identifier}	{ return sym(PascalTok.IDENTIFIER); }
 
-	.			{ Report.warning("Illegal char '" + yytext() + "' (line: " + yyline + ", column: " + yychar + ")"); }
+	.				{ Report.warning("Illegal char '" + yytext() + "' (line: " + yyline + ", column: " + yychar + ")"); }
 }
 
 <COMMENT> {
 	"{"		{ stComment++; }
 	"}"		{ stComment--; if(stComment==0) yybegin(YYINITIAL); }
-	.|\n		{ }
+	.|\n	{ }
 }
