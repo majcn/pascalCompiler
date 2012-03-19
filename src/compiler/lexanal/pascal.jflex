@@ -23,14 +23,14 @@ import compiler.synanal.*;
 %type       PascalSym
 %eofval{
 	if(stComment!=0)
-		Report.error("Unexpected end of file",1);
-	else
-		return new PascalSym(PascalTok.EOF);
+		Report.warning("Comment started at line " + commentLine + " is not finished");
+	return new PascalSym(PascalTok.EOF);
 %eofval}
 %eofclose
 
 %{
 	int stComment = 0;
+	int commentLine;
 	private PascalSym sym(int type) {
 		return new PascalSym(type, yyline + 1, yycolumn + 1, yytext());
 	}
@@ -44,7 +44,7 @@ digit = [0-9]
 
 boolean = "true"|"false"
 integer = -?{digit}+
-char = '[^']'|''
+char = '[^']'|''''|''
 identifier = {letter}({letter}|{digit}|[_])*
 
 %state COMMENT
@@ -53,7 +53,7 @@ identifier = {letter}({letter}|{digit}|[_])*
 <YYINITIAL> {
 	[ \n\t]+		{ }
 
-	"{"				{ stComment++; yybegin(COMMENT); }
+	"{"				{ commentLine = yyline+1; stComment++; yybegin(COMMENT); }
 
 	"and"			{ return sym(PascalTok.AND); }
 	"array"			{ return sym(PascalTok.ARRAY); }
@@ -111,7 +111,7 @@ identifier = {letter}({letter}|{digit}|[_])*
 
 	{identifier}	{ return sym(PascalTok.IDENTIFIER); }
 
-	.				{ Report.warning("Illegal char '" + yytext() + "' (line: " + yyline + ", column: " + yychar + ")"); }
+	.				{ Report.warning("Illegal char '" + yytext() + "' at line " + (yyline+1)); }
 }
 
 <COMMENT> {
