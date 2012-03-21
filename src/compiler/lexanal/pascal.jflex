@@ -43,7 +43,7 @@ letter = [A-Za-z]
 digit = [0-9]
 
 boolean = "true"|"false"
-integer = -?{digit}+
+integer = {digit}+
 char = '[^']'|''''|''
 identifier = {letter}({letter}|{digit}|[_])*
 
