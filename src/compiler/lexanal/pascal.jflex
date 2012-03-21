@@ -44,7 +44,7 @@ digit = [0-9]
 
 boolean = "true"|"false"
 integer = {digit}+
-char = '[^']'|''''|''
+char = '[^'\n]'|''''|''
 identifier = {letter}({letter}|{digit}|[_])*
 
 %state COMMENT
