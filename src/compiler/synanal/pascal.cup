@@ -30,6 +30,6 @@ non terminal	source;
 
 start with source;
 
-source
-    ;
-
+source ::= header consts;
+header ::= PROGRAM IDENTIFIER SEMIC ;
+consts ::= ;
