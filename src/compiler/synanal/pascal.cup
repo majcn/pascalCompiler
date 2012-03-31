@@ -26,10 +26,46 @@ terminal COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS
 terminal ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL;
 terminal ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE;
 
-non terminal	source;
+non terminal	source, header;
+non terminal	operator ;
+non terminal	dConst, consts, oConst, vConst, cPref, cPost ;
+non terminal	dType, types, oType, vType, vType1, tArray, tRecord, rParameters, tPointer;
+non terminal	dVar, vars, oVar ;
+non terminal	dPF, dProcedure, dFunction, parameters;
+non terminal	procedureHeader;
 
 start with source;
 
-source ::= header consts;
+source ::= header dConst dType dVar dPF ;
 header ::= PROGRAM IDENTIFIER SEMIC ;
-consts ::= ;
+
+vType ::= LPARENTHESIS vType1 RPARENTHESIS | vType1 ;
+vType1 ::= BOOL | CHAR | INT | IDENTIFIER | tArray | tRecord | tPointer ;
+tArray ::= ARRAY LBRACKET vConst DOTS vConst RBRACKET OF vType ;
+tRecord ::= RECORD rParameters END SEMIC;
+rParameters ::= IDENTIFIER COLON vType SEMIC rParameters | IDENTIFIER COLON vType SEMIC ;
+tPointer ::= PTR vType;
+
+operator ::= MUL | DIV | ADD | SUB | EQU | NEQ | LTH | GTH | LEQ | GEQ | AND | OR ;
+
+vConst ::= BOOL_CONST | CHAR_CONST | INT_CONST | NIL | IDENTIFIER | vConst operator vConst ;
+//cPref ::= PTR vConst | ADD vConst | SUB vConst | NOT vConst ;
+//cPost ::= vConst PTR ;
+
+dConst ::= | CONST consts ;
+consts ::= consts oConst | oConst ;
+oConst ::= IDENTIFIER EQU vConst SEMIC ;
+
+dType ::= | TYPE types;
+types ::= types oType | oType ;
+oType ::= IDENTIFIER EQU vType SEMIC ;
+
+dVar ::= | VAR vars;
+vars ::= vars oVar | oVar ;
+oVar ::= IDENTIFIER COLON vType SEMIC ;
+
+dPF ::= | dProcedure;
+
+dProcedure ::= procedureHeader dConst dType dVar dPF;
+procedureHeader ::= PROCEDURE IDENTIFIER LPARENTHESIS parameters RPARENTHESIS SEMIC | PROCEDURE IDENTIFIER LPARENTHESIS RPARENTHESIS SEMIC ;
+parameters ::= IDENTIFIER COLON vType SEMIC parameters | IDENTIFIER COLON vType ;
