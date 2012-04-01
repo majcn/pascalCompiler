@@ -18,13 +18,13 @@ parser code
         }
 :}
 
-terminal String BOOL_CONST, CHAR_CONST, INT_CONST, NIL;
-terminal String IDENTIFIER;
+terminal String BOOL_CONST, CHAR_CONST, INT_CONST, NIL ;
+terminal String IDENTIFIER ;
 
-terminal BOOL, CHAR, INT;
-terminal COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS, SEMIC;
-terminal ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL;
-terminal ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE;
+terminal BOOL, CHAR, INT ;
+terminal COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS, SEMIC ;
+terminal ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL ;
+terminal ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE ;
 
 non terminal koda ;
 non terminal dKonstant, dpKonstant, dTipov, dpTipov, dSpremenljivk, dpSpremenljivk, dPodprogramov, dProcedure, dFunkcije, oParametrov, opParametrov ;
@@ -42,7 +42,7 @@ precedence nonassoc VAL ;
 precedence nonassoc UADD, USUB, MEM ;
 precedence left DOT, LBRACKET, RBRACKET ;
 
-start with koda;
+start with koda ;
 
 koda ::=
 	PROGRAM IDENTIFIER SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek DOT ;
@@ -57,7 +57,7 @@ dpKonstant ::=
 dTipov ::=
 	|
 	TYPE dpTipov ;
-dpTipov ::= 
+dpTipov ::=
 	dpTipov IDENTIFIER EQU oTipa SEMIC |
 	IDENTIFIER EQU oTipa SEMIC ;
 
@@ -71,24 +71,24 @@ dpSpremenljivk ::=
 dPodprogramov ::=
 	|
 	dProcedure dPodprogramov |
-	dFunkcije dPodprogramov;
-	
+	dFunkcije dPodprogramov ;
+
 dProcedure ::=
-	PROCEDURE IDENTIFIER oParametrov SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek SEMIC;
-	
+	PROCEDURE IDENTIFIER oParametrov SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek SEMIC ;
+
 dFunkcije ::=
-	FUNCTION IDENTIFIER oParametrov COLON oTipa SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek SEMIC;
-	
-oParametrov ::= 
+	FUNCTION IDENTIFIER oParametrov COLON oTipa SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek SEMIC ;
+
+oParametrov ::=
 	LPARENTHESIS opParametrov RPARENTHESIS |
 	LPARENTHESIS RPARENTHESIS ;
 opParametrov ::=
 	IDENTIFIER COLON oTipa SEMIC opParametrov |
 	IDENTIFIER COLON oTipa ;
 
-oTipa ::= 
-	BOOL | 
-	CHAR | 
+oTipa ::=
+	BOOL |
+	CHAR |
 	INT |
 	IDENTIFIER |
 	ARRAY LBRACKET oVrednosti DOTS oVrednosti RBRACKET OF oTipa |
@@ -96,7 +96,7 @@ oTipa ::=
 	PTR oTipa |
 	LPARENTHESIS oTipa RPARENTHESIS ;
 
-oVrednosti ::= 
+oVrednosti ::=
 	BOOL_CONST |
 	CHAR_CONST |
 	INT_CONST |
@@ -126,8 +126,8 @@ oVrednosti ::=
 	LPARENTHESIS oVrednosti RPARENTHESIS ;
 kPodprograma ::=
 	IDENTIFIER LPARENTHESIS koParametrov RPARENTHESIS |
-	IDENTIFIER LPARENTHESIS RPARENTHESIS;
-koParametrov ::= 
+	IDENTIFIER LPARENTHESIS RPARENTHESIS ;
+koParametrov ::=
 	oVrednosti COMMA koParametrov |
 	oVrednosti ;
 
@@ -144,6 +144,6 @@ ifStavek ::=
 sStavek ::=
 	BEGIN END |
 	BEGIN stavki END ;
-stavki ::= 
+stavki ::=
 	stavek SEMIC stavki |
 	stavek ;
