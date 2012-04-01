@@ -70,8 +70,8 @@ dpSpremenljivk ::=
 	
 dPodprogramov ::=
 	|
-	dProcedure sStavek SEMIC |
-	dFunkcije BEGIN stavki END SEMIC ;
+	dProcedure dPodprogramov |
+	dFunkcije dPodprogramov;
 	
 dProcedure ::=
 	PROCEDURE IDENTIFIER oParametrov SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek SEMIC;
