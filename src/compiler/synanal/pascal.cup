@@ -32,7 +32,7 @@ non terminal dType, types, vType ;
 non terminal dVar, vars ;
 non terminal dPF, dProcedure, dFunction, parameters ;
 non terminal procedureHeader, functionHeader ;
-non terminal statements, statement ;
+non terminal statements, statement, cStatement ;
 
 precedence left OR ;
 precedence left AND ;
@@ -120,13 +120,13 @@ dPF ::=
 	dFunction BEGIN statements END SEMIC ;
 
 dProcedure ::=
-	procedureHeader dConst dType dVar dPF;
+	procedureHeader dConst dType dVar dPF cStatement SEMIC;
 procedureHeader ::=
 	PROCEDURE IDENTIFIER LPARENTHESIS parameters RPARENTHESIS SEMIC | 
 	PROCEDURE IDENTIFIER LPARENTHESIS RPARENTHESIS SEMIC ;
 	
 dFunction ::=
-	functionHeader dConst dType dVar dPF;
+	functionHeader dConst dType dVar dPF cStatement SEMIC;
 functionHeader ::=
 	FUNCTION IDENTIFIER LPARENTHESIS parameters RPARENTHESIS COLON vType SEMIC |
 	FUNCTION IDENTIFIER LPARENTHESIS RPARENTHESIS COLON vType SEMIC ;
@@ -135,4 +135,16 @@ parameters ::=
 	IDENTIFIER COLON vType SEMIC parameters |
 	IDENTIFIER COLON vType ;
 	
-statements ::= ;
+cStatement ::=
+	BEGIN END |
+	BEGIN statements END;
+statements ::= 
+	statement SEMIC statements |
+	statement ;
+statement ::=
+	vConst |
+	vConst ASSIGN vConst |
+	WHILE vConst DO statement |
+	FOR IDENTIFIER ASSIGN vConst TO vConst DO statement |
+	IF vConst THEN statement ELSE statement |
+	IF vConst THEN statement ;
