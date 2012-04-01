@@ -26,13 +26,11 @@ terminal COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS
 terminal ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL;
 terminal ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE;
 
-non terminal source, header ;
-non terminal dConst, consts, vConst, cParameters ;
-non terminal dType, types, vType ;
-non terminal dVar, vars ;
-non terminal dPF, dProcedure, dFunction, parameters ;
-non terminal procedureHeader, functionHeader ;
-non terminal statements, statement, cStatement ;
+non terminal koda ;
+non terminal dKonstant, dpKonstant, dTipov, dpTipov, dSpremenljivk, dpSpremenljivk, dPodprogramov, dProcedure, dFunkcije, oParametrov, opParametrov ;
+non terminal oTipa ;
+non terminal oVrednosti, kPodprograma, koParametrov ;
+non terminal stavek, ifStavek, sStavek, stavki ;
 
 precedence left OR ;
 precedence left AND ;
@@ -44,107 +42,108 @@ precedence nonassoc VAL ;
 precedence nonassoc UADD, USUB, MEM ;
 precedence left DOT, LBRACKET, RBRACKET ;
 
-start with source;
+start with koda;
 
-source ::= header dConst dType dVar dPF ;
-header ::= PROGRAM IDENTIFIER SEMIC ;
+koda ::=
+	PROGRAM IDENTIFIER SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek DOT ;
 
-vType ::= 
+dKonstant ::=
+	|
+	CONST dpKonstant ;
+dpKonstant ::=
+	dpKonstant IDENTIFIER EQU oVrednosti SEMIC |
+	IDENTIFIER EQU oVrednosti SEMIC ;
+	
+dTipov ::=
+	|
+	TYPE dpTipov ;
+dpTipov ::= 
+	dpTipov IDENTIFIER EQU oTipa SEMIC |
+	IDENTIFIER EQU oTipa SEMIC ;
+
+dSpremenljivk ::=
+	|
+	VAR dpSpremenljivk ;
+dpSpremenljivk ::=
+	dpSpremenljivk IDENTIFIER COLON oTipa SEMIC |
+	IDENTIFIER COLON oTipa SEMIC ;
+	
+dPodprogramov ::=
+	|
+	dProcedure sStavek SEMIC |
+	dFunkcije BEGIN stavki END SEMIC ;
+	
+dProcedure ::=
+	PROCEDURE IDENTIFIER oParametrov SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek SEMIC;
+	
+dFunkcije ::=
+	FUNCTION IDENTIFIER oParametrov COLON oTipa SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek SEMIC;
+	
+oParametrov ::= 
+	LPARENTHESIS opParametrov RPARENTHESIS |
+	LPARENTHESIS RPARENTHESIS ;
+opParametrov ::=
+	IDENTIFIER COLON oTipa SEMIC opParametrov |
+	IDENTIFIER COLON oTipa ;
+
+oTipa ::= 
 	BOOL | 
 	CHAR | 
-	INT | 
-	IDENTIFIER | 
-	ARRAY LBRACKET vConst DOTS vConst RBRACKET OF vType |
-	RECORD parameters END |
-	PTR vType |
-	LPARENTHESIS vType RPARENTHESIS ;
+	INT |
+	IDENTIFIER |
+	ARRAY LBRACKET oVrednosti DOTS oVrednosti RBRACKET OF oTipa |
+	RECORD opParametrov END |
+	PTR oTipa |
+	LPARENTHESIS oTipa RPARENTHESIS ;
 
-vConst ::= 
+oVrednosti ::= 
 	BOOL_CONST |
 	CHAR_CONST |
 	INT_CONST |
 	NIL |
-	PTR vConst %prec MEM |
-	ADD vConst %prec UADD |
-	SUB vConst %prec USUB |
-	NOT vConst |
-	vConst PTR %prec VAL |
-	vConst MUL vConst |
-	vConst DIV vConst |
-	vConst ADD vConst |
-	vConst SUB vConst |
-	vConst EQU vConst |
-	vConst NEQ vConst |
-	vConst LTH vConst |
-	vConst GTH vConst |
-	vConst LEQ vConst |
-	vConst GEQ vConst |
-	vConst AND vConst |
-	vConst OR vConst |
+	PTR oVrednosti %prec MEM |
+	ADD oVrednosti %prec UADD |
+	SUB oVrednosti %prec USUB |
+	NOT oVrednosti |
+	oVrednosti PTR %prec VAL |
+	oVrednosti MUL oVrednosti |
+	oVrednosti DIV oVrednosti |
+	oVrednosti ADD oVrednosti |
+	oVrednosti SUB oVrednosti |
+	oVrednosti EQU oVrednosti |
+	oVrednosti NEQ oVrednosti |
+	oVrednosti LTH oVrednosti |
+	oVrednosti GTH oVrednosti |
+	oVrednosti LEQ oVrednosti |
+	oVrednosti GEQ oVrednosti |
+	oVrednosti AND oVrednosti |
+	oVrednosti OR oVrednosti |
 	IDENTIFIER |
-	vConst LBRACKET vConst RBRACKET |
-	vConst DOT IDENTIFIER |
-	IDENTIFIER LPARENTHESIS cParameters RPARENTHESIS |
-	IDENTIFIER LPARENTHESIS RPARENTHESIS |
-	LBRACKET vConst RBRACKET |
-	LPARENTHESIS vConst RPARENTHESIS ;
+	oVrednosti LBRACKET oVrednosti RBRACKET |
+	oVrednosti DOT IDENTIFIER |
+	kPodprograma |
+	LBRACKET oTipa RBRACKET |
+	LPARENTHESIS oVrednosti RPARENTHESIS ;
+kPodprograma ::=
+	IDENTIFIER LPARENTHESIS koParametrov RPARENTHESIS |
+	IDENTIFIER LPARENTHESIS RPARENTHESIS;
+koParametrov ::= 
+	oVrednosti COMMA koParametrov |
+	oVrednosti ;
 
-cParameters ::= 
-	vConst COMMA cParameters |
-	vConst ;
+stavek ::=
+	oVrednosti |
+	oVrednosti ASSIGN oVrednosti |
+	ifStavek |
+	WHILE oVrednosti DO stavek |
+	FOR IDENTIFIER ASSIGN oVrednosti TO oVrednosti DO stavek ;
+ifStavek ::=
+	IF oVrednosti THEN stavek ELSE stavek |
+	IF oVrednosti THEN stavek ;
 
-dConst ::= 
-	|
-	CONST consts ;
-consts ::= 
-	consts IDENTIFIER EQU vConst SEMIC |
-	IDENTIFIER EQU vConst SEMIC ;
-
-dType ::= 
-	|
-	TYPE types ;
-types ::= 
-	types IDENTIFIER EQU vType SEMIC |
-	IDENTIFIER EQU vType SEMIC ;
-
-dVar ::=
-	|
-	VAR vars ;
-vars ::=
-	vars IDENTIFIER COLON vType SEMIC |
-	IDENTIFIER COLON vType SEMIC ;
-
-dPF ::=
-	|
-	dProcedure BEGIN statements END SEMIC |
-	dFunction BEGIN statements END SEMIC ;
-
-dProcedure ::=
-	procedureHeader dConst dType dVar dPF cStatement SEMIC;
-procedureHeader ::=
-	PROCEDURE IDENTIFIER LPARENTHESIS parameters RPARENTHESIS SEMIC | 
-	PROCEDURE IDENTIFIER LPARENTHESIS RPARENTHESIS SEMIC ;
-	
-dFunction ::=
-	functionHeader dConst dType dVar dPF cStatement SEMIC;
-functionHeader ::=
-	FUNCTION IDENTIFIER LPARENTHESIS parameters RPARENTHESIS COLON vType SEMIC |
-	FUNCTION IDENTIFIER LPARENTHESIS RPARENTHESIS COLON vType SEMIC ;
-	
-parameters ::= 
-	IDENTIFIER COLON vType SEMIC parameters |
-	IDENTIFIER COLON vType ;
-	
-cStatement ::=
+sStavek ::=
 	BEGIN END |
-	BEGIN statements END;
-statements ::= 
-	statement SEMIC statements |
-	statement ;
-statement ::=
-	vConst |
-	vConst ASSIGN vConst |
-	WHILE vConst DO statement |
-	FOR IDENTIFIER ASSIGN vConst TO vConst DO statement |
-	IF vConst THEN statement ELSE statement |
-	IF vConst THEN statement ;
+	BEGIN stavki END ;
+stavki ::= 
+	stavek SEMIC stavki |
+	stavek ;
