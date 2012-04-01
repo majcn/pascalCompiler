@@ -33,8 +33,10 @@ public class Main {
 			compiler.lexanal.Main.exec();
 		else if (phase.equals("synanal"))
 			compiler.synanal.Main.exec();
-		else
+		else {
+			compiler.lexanal.Main.exec();
 			compiler.synanal.Main.exec();
+		}
 
 		System.out.print(":-) Done.\n");
 		System.exit(0);
