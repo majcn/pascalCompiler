@@ -26,46 +26,113 @@ terminal COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS
 terminal ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL;
 terminal ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE;
 
-non terminal	source, header;
-non terminal	operator ;
-non terminal	dConst, consts, oConst, vConst, cPref, cPost ;
-non terminal	dType, types, oType, vType, vType1, tArray, tRecord, rParameters, tPointer;
-non terminal	dVar, vars, oVar ;
-non terminal	dPF, dProcedure, dFunction, parameters;
-non terminal	procedureHeader;
+non terminal source, header ;
+non terminal dConst, consts, vConst, cParameters ;
+non terminal dType, types, vType ;
+non terminal dVar, vars ;
+non terminal dPF, dProcedure, dFunction, parameters ;
+non terminal procedureHeader, functionHeader ;
+non terminal statements, statement ;
+
+precedence left OR ;
+precedence left AND ;
+precedence nonassoc EQU, NEQ, LTH, GTH, LEQ, GEQ ;
+precedence left ADD, SUB ;
+precedence left MUL, DIV ;
+precedence nonassoc NOT ;
+precedence nonassoc VAL ;
+precedence nonassoc UADD, USUB, MEM ;
+precedence left DOT, LBRACKET, RBRACKET ;
 
 start with source;
 
 source ::= header dConst dType dVar dPF ;
 header ::= PROGRAM IDENTIFIER SEMIC ;
 
-vType ::= LPARENTHESIS vType1 RPARENTHESIS | vType1 ;
-vType1 ::= BOOL | CHAR | INT | IDENTIFIER | tArray | tRecord | tPointer ;
-tArray ::= ARRAY LBRACKET vConst DOTS vConst RBRACKET OF vType ;
-tRecord ::= RECORD rParameters END SEMIC;
-rParameters ::= IDENTIFIER COLON vType SEMIC rParameters | IDENTIFIER COLON vType SEMIC ;
-tPointer ::= PTR vType;
+vType ::= 
+	BOOL | 
+	CHAR | 
+	INT | 
+	IDENTIFIER | 
+	ARRAY LBRACKET vConst DOTS vConst RBRACKET OF vType |
+	RECORD parameters END |
+	PTR vType |
+	LPARENTHESIS vType RPARENTHESIS ;
 
-operator ::= MUL | DIV | ADD | SUB | EQU | NEQ | LTH | GTH | LEQ | GEQ | AND | OR ;
+vConst ::= 
+	BOOL_CONST |
+	CHAR_CONST |
+	INT_CONST |
+	NIL |
+	PTR vConst %prec MEM |
+	ADD vConst %prec UADD |
+	SUB vConst %prec USUB |
+	NOT vConst |
+	vConst PTR %prec VAL |
+	vConst MUL vConst |
+	vConst DIV vConst |
+	vConst ADD vConst |
+	vConst SUB vConst |
+	vConst EQU vConst |
+	vConst NEQ vConst |
+	vConst LTH vConst |
+	vConst GTH vConst |
+	vConst LEQ vConst |
+	vConst GEQ vConst |
+	vConst AND vConst |
+	vConst OR vConst |
+	IDENTIFIER |
+	vConst LBRACKET vConst RBRACKET |
+	vConst DOT IDENTIFIER |
+	IDENTIFIER LPARENTHESIS cParameters RPARENTHESIS |
+	IDENTIFIER LPARENTHESIS RPARENTHESIS |
+	LBRACKET vConst RBRACKET |
+	LPARENTHESIS vConst RPARENTHESIS ;
 
-vConst ::= BOOL_CONST | CHAR_CONST | INT_CONST | NIL | IDENTIFIER | vConst operator vConst ;
-//cPref ::= PTR vConst | ADD vConst | SUB vConst | NOT vConst ;
-//cPost ::= vConst PTR ;
+cParameters ::= 
+	vConst COMMA cParameters |
+	vConst ;
 
-dConst ::= | CONST consts ;
-consts ::= consts oConst | oConst ;
-oConst ::= IDENTIFIER EQU vConst SEMIC ;
+dConst ::= 
+	|
+	CONST consts ;
+consts ::= 
+	consts IDENTIFIER EQU vConst SEMIC |
+	IDENTIFIER EQU vConst SEMIC ;
 
-dType ::= | TYPE types;
-types ::= types oType | oType ;
-oType ::= IDENTIFIER EQU vType SEMIC ;
+dType ::= 
+	|
+	TYPE types ;
+types ::= 
+	types IDENTIFIER EQU vType SEMIC |
+	IDENTIFIER EQU vType SEMIC ;
 
-dVar ::= | VAR vars;
-vars ::= vars oVar | oVar ;
-oVar ::= IDENTIFIER COLON vType SEMIC ;
+dVar ::=
+	|
+	VAR vars ;
+vars ::=
+	vars IDENTIFIER COLON vType SEMIC |
+	IDENTIFIER COLON vType SEMIC ;
 
-dPF ::= | dProcedure;
+dPF ::=
+	|
+	dProcedure BEGIN statements END SEMIC |
+	dFunction BEGIN statements END SEMIC ;
 
-dProcedure ::= procedureHeader dConst dType dVar dPF;
-procedureHeader ::= PROCEDURE IDENTIFIER LPARENTHESIS parameters RPARENTHESIS SEMIC | PROCEDURE IDENTIFIER LPARENTHESIS RPARENTHESIS SEMIC ;
-parameters ::= IDENTIFIER COLON vType SEMIC parameters | IDENTIFIER COLON vType ;
+dProcedure ::=
+	procedureHeader dConst dType dVar dPF;
+procedureHeader ::=
+	PROCEDURE IDENTIFIER LPARENTHESIS parameters RPARENTHESIS SEMIC | 
+	PROCEDURE IDENTIFIER LPARENTHESIS RPARENTHESIS SEMIC ;
+	
+dFunction ::=
+	functionHeader dConst dType dVar dPF;
+functionHeader ::=
+	FUNCTION IDENTIFIER LPARENTHESIS parameters RPARENTHESIS COLON vType SEMIC |
+	FUNCTION IDENTIFIER LPARENTHESIS RPARENTHESIS COLON vType SEMIC ;
+	
+parameters ::= 
+	IDENTIFIER COLON vType SEMIC parameters |
+	IDENTIFIER COLON vType ;
+	
+statements ::= ;
