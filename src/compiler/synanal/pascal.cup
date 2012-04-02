@@ -136,7 +136,8 @@ stavek ::=
 	oVrednosti ASSIGN oVrednosti |
 	ifStavek |
 	WHILE oVrednosti DO stavek |
-	FOR IDENTIFIER ASSIGN oVrednosti TO oVrednosti DO stavek ;
+	FOR IDENTIFIER ASSIGN oVrednosti TO oVrednosti DO stavek |
+	sStavek ;
 ifStavek ::=
 	IF oVrednosti THEN stavek ELSE stavek |
 	IF oVrednosti THEN stavek ;
