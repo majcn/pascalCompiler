@@ -123,7 +123,7 @@ oVrednosti ::=
 	oVrednosti:e1 OR oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.OR, e1, e2); :} |
 	IDENTIFIER:e1 {: RESULT = new AbsValName(e1); :} |
 	oVrednosti:e1 LBRACKET oVrednosti:e2 RBRACKET {: RESULT = new AbsBinExpr(AbsBinExpr.ARRACCESS, e1, e2); :} |
-	oVrednosti:e1 DOT IDENTIFIER:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.RECACCESS, e1, e2); :} |
+	oVrednosti:e1 DOT IDENTIFIER:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.RECACCESS, e1, new AbsValName(e2)); :} |
 	kPodprograma |
 	LBRACKET oTipa:e1 RBRACKET {: RESULT = new AbsAlloc(e1); :} |
 	LPARENTHESIS oVrednosti RPARENTHESIS ;
