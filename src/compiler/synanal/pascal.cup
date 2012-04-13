@@ -29,11 +29,17 @@ terminal ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SU
 terminal ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE ;
 
 non terminal AbsProgram koda ;
-non terminal dKonstant, dpKonstant, dTipov, dpTipov, dSpremenljivk, dpSpremenljivk, dPodprogramov, dProcedure, dFunkcije, oParametrov, opParametrov ;
+non terminal AbsDecls dSkupaj, dKonstant, dpKonstant, dTipov, dpTipov, dSpremenljivk, dpSpremenljivk, dPodprogramov, oParametrov, opParametrov ;
+non terminal AbsProcDecl dProcedure ;
+non terminal AbsFunDecl dFunkcije ;
 non terminal AbsTypeExpr oTipa ;
 non terminal AbsValExpr oVrednosti ;
-non terminal kPodprograma, koParametrov ;
-non terminal stavek, ifStavek, sStavek, stavki ;
+non terminal AbsCallExpr kPodprograma ;
+non terminal AbsValExprs koParametrov; 
+non terminal AbsStmt stavek ;
+non terminal AbsStmts stavki ;
+non terminal AbsIfStmt ifStavek ;
+non terminal AbsBlockStmt sStavek ;
 
 precedence left OR ;
 precedence left AND ;
@@ -48,106 +54,409 @@ precedence left DOT, LBRACKET, RBRACKET ;
 start with koda ;
 
 koda ::=
-	PROGRAM IDENTIFIER SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek DOT {: RESULT = new AbsProgram(); :};
+	PROGRAM IDENTIFIER:e1 SEMIC dSkupaj:l1 sStavek:e2 DOT
+	{:
+		RESULT = new AbsProgram(new AbsDeclName(e1), l1, e2);
+	:} ;
+	
+dSkupaj ::=
+	dKonstant:l1 dTipov:l2 dSpremenljivk:l3 dPodprogramov:l4
+	{:
+		AbsDecls ld = new AbsDecls();
+		ld.decls.addAll(l1.decls);
+		ld.decls.addAll(l2.decls);
+		ld.decls.addAll(l3.decls);
+		ld.decls.addAll(l4.decls);
+		RESULT = ld;
+	:} ;
 
 dKonstant ::=
+	{:
+		RESULT = new AbsDecls();
+	:}
 	|
-	CONST dpKonstant ;
+	CONST dpKonstant:l1
+	{:
+		RESULT = l1;
+	:} ;
 dpKonstant ::=
-	dpKonstant IDENTIFIER EQU oVrednosti SEMIC |
-	IDENTIFIER EQU oVrednosti SEMIC ;
+	dpKonstant:l1 IDENTIFIER:e1 EQU oVrednosti:e2 SEMIC
+	{:
+		l1.decls.add(new AbsConstDecl(new AbsDeclName(e1), e2));
+		RESULT = l1;
+	:}
+	|
+	IDENTIFIER:e1 EQU oVrednosti:e2 SEMIC
+	{:
+		AbsDecls l1 = new AbsDecls();
+		l1.decls.add(new AbsConstDecl(new AbsDeclName(e1), e2));
+		RESULT = l1;
+	:} ;
 	
 dTipov ::=
+	{:
+		RESULT = new AbsDecls();
+	:}
 	|
-	TYPE dpTipov ;
+	TYPE dpTipov:l1
+	{:
+		RESULT = l1;
+	:} ;
 dpTipov ::=
-	dpTipov IDENTIFIER EQU oTipa SEMIC |
-	IDENTIFIER EQU oTipa SEMIC ;
+	dpTipov:l1 IDENTIFIER:e1 EQU oTipa:e2 SEMIC
+	{:
+		l1.decls.add(new AbsTypeDecl(new AbsDeclName(e1), e2));
+		RESULT = l1;
+	:}
+	|
+	IDENTIFIER:e1 EQU oTipa:e2 SEMIC
+	{:
+		AbsDecls l1 = new AbsDecls();
+		l1.decls.add(new AbsTypeDecl(new AbsDeclName(e1), e2));
+		RESULT = l1;
+	:} ;
 
 dSpremenljivk ::=
+	{:
+		RESULT = new AbsDecls();
+	:}
 	|
-	VAR dpSpremenljivk ;
+	VAR dpSpremenljivk:l1
+	{:
+		RESULT = l1;
+	:} ;
 dpSpremenljivk ::=
-	dpSpremenljivk IDENTIFIER COLON oTipa SEMIC |
-	IDENTIFIER COLON oTipa SEMIC ;
+	dpSpremenljivk:l1 IDENTIFIER:e1 COLON oTipa:e2 SEMIC
+	{:
+		l1.decls.add(new AbsVarDecl(new AbsDeclName(e1), e2));
+		RESULT = l1;
+	:}
+	|
+	IDENTIFIER:e1 COLON oTipa:e2 SEMIC
+	{:
+		AbsDecls l1 = new AbsDecls();
+		l1.decls.add(new AbsVarDecl(new AbsDeclName(e1), e2));
+		RESULT = l1;
+	:} ;
 	
 dPodprogramov ::=
+	{:
+		RESULT = new AbsDecls();
+	:}
 	|
-	dProcedure dPodprogramov |
-	dFunkcije dPodprogramov ;
+	dProcedure:e1 dPodprogramov:l1
+	{:
+		l1.decls.add(e1);
+		RESULT = l1;		
+	:}
+	|
+	dFunkcije:e1 dPodprogramov:l1
+	{:
+		l1.decls.add(e1);
+		RESULT = l1;		
+	:} ;
 
 dProcedure ::=
-	PROCEDURE IDENTIFIER oParametrov SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek SEMIC ;
+	PROCEDURE IDENTIFIER:e1 oParametrov:l1 SEMIC dSkupaj:l2 sStavek:e2 SEMIC
+	{:
+		RESULT = new AbsProcDecl(new AbsDeclName(e1), l1, l2, e2);
+	:} ;
 
 dFunkcije ::=
-	FUNCTION IDENTIFIER oParametrov COLON oTipa SEMIC dKonstant dTipov dSpremenljivk dPodprogramov sStavek SEMIC ;
+	FUNCTION IDENTIFIER:e1 oParametrov:l1 COLON oTipa:e2 SEMIC dSkupaj:l2 sStavek:e3 SEMIC
+	{:
+		RESULT = new AbsFunDecl(new AbsDeclName(e1), l1, e2, l2, e3);
+	:} ;
 
 oParametrov ::=
-	LPARENTHESIS opParametrov RPARENTHESIS |
-	LPARENTHESIS RPARENTHESIS ;
+	LPARENTHESIS opParametrov:l1 RPARENTHESIS
+	{:
+		RESULT = l1;
+	:}
+	|
+	LPARENTHESIS RPARENTHESIS
+	{:
+		RESULT = new AbsDecls();
+	:} ;
 opParametrov ::=
-	IDENTIFIER COLON oTipa SEMIC opParametrov |
-	IDENTIFIER COLON oTipa ;
+	IDENTIFIER:e1 COLON oTipa:e2 SEMIC opParametrov:l1
+	{:
+		l1.decls.add(new AbsTypeDecl(new AbsDeclName(e1), e2));
+		RESULT = l1;		
+	:}
+	|
+	IDENTIFIER:e1 COLON oTipa:e2
+	{:
+		AbsDecls l1 = new AbsDecls();
+		l1.decls.add(new AbsTypeDecl(new AbsDeclName(e1), e2));
+		RESULT = l1;
+	:} ;
 
 oTipa ::=
-	BOOL {: RESULT = new AbsAtomType(AbsAtomType.BOOL); :} |
-	CHAR {: RESULT = new AbsAtomType(AbsAtomType.CHAR); :} |
-	INT {: RESULT = new AbsAtomType(AbsAtomType.INT); :} |
-	IDENTIFIER |
-	ARRAY LBRACKET oVrednosti:e1 DOTS oVrednosti:e2 RBRACKET OF oTipa:e3 {: RESULT = new AbsArrayType(e3, e1, e2); :} |
-	RECORD opParametrov END |
-	PTR oTipa:e1 {: RESULT = new AbsPointerType(e1); :} |
-	LPARENTHESIS oTipa RPARENTHESIS ;
+	BOOL
+	{:
+		RESULT = new AbsAtomType(AbsAtomType.BOOL);
+	:}
+	|
+	CHAR
+	{:
+		RESULT = new AbsAtomType(AbsAtomType.CHAR);
+	:}
+	|
+	INT
+	{:
+		RESULT = new AbsAtomType(AbsAtomType.INT);
+	:}
+	|
+	IDENTIFIER:e1
+	{:
+		RESULT = new AbsTypeName(e1);
+	:}
+	|
+	ARRAY LBRACKET oVrednosti:e1 DOTS oVrednosti:e2 RBRACKET OF oTipa:e3
+	{:
+		RESULT = new AbsArrayType(e3, e1, e2);
+	:}
+	|
+	RECORD opParametrov:l1 END
+	{:
+		RESULT = new AbsRecordType(l1);
+	:}
+	|
+	PTR oTipa:e1
+	{:
+		RESULT = new AbsPointerType(e1);
+	:}
+	|
+	LPARENTHESIS oTipa:e1 RPARENTHESIS
+	{:
+		RESULT = e1;
+	:} ;
 
 oVrednosti ::=
-	BOOL_CONST:e1 {: RESULT = new AbsAtomConst(e1, AbsAtomConst.BOOL); :} |
-	CHAR_CONST:e1 {: RESULT = new AbsAtomConst(e1, AbsAtomConst.CHAR); :} |
-	INT_CONST:e1 {: RESULT = new AbsAtomConst(e1, AbsAtomConst.INT); :} |
-	NIL {: RESULT = new AbsNilConst(); :} |
-	PTR oVrednosti:e1 {: RESULT = new AbsUnExpr(AbsUnExpr.MEM, e1); :} %prec MEM |
-	ADD oVrednosti:e1 {: RESULT = new AbsUnExpr(AbsUnExpr.ADD, e1); :} %prec UADD |
-	SUB oVrednosti:e1 {: RESULT = new AbsUnExpr(AbsUnExpr.SUB, e1); :} %prec USUB |
-	NOT oVrednosti:e1 {: RESULT = new AbsUnExpr(AbsUnExpr.NOT, e1); :} |
-	oVrednosti:e1 PTR {: RESULT = new AbsUnExpr(AbsUnExpr.VAL, e1); :} %prec VAL |
-	oVrednosti:e1 MUL oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.MUL, e1, e2); :} |
-	oVrednosti:e1 DIV oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.DIV, e1, e2); :} |
-	oVrednosti:e1 ADD oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.ADD, e1, e2); :} |
-	oVrednosti:e1 SUB oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.SUB, e1, e2); :} |
-	oVrednosti:e1 EQU oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.EQU, e1, e2); :} |
-	oVrednosti:e1 NEQ oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.NEQ, e1, e2); :} |
-	oVrednosti:e1 LTH oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.LTH, e1, e2); :} |
-	oVrednosti:e1 GTH oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.GTH, e1, e2); :} |
-	oVrednosti:e1 LEQ oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.LEQ, e1, e2); :} |
-	oVrednosti:e1 GEQ oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.GEQ, e1, e2); :} |
-	oVrednosti:e1 AND oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.AND, e1, e2); :} |
-	oVrednosti:e1 OR oVrednosti:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.OR, e1, e2); :} |
-	IDENTIFIER:e1 {: RESULT = new AbsValName(e1); :} |
-	oVrednosti:e1 LBRACKET oVrednosti:e2 RBRACKET {: RESULT = new AbsBinExpr(AbsBinExpr.ARRACCESS, e1, e2); :} |
-	oVrednosti:e1 DOT IDENTIFIER:e2 {: RESULT = new AbsBinExpr(AbsBinExpr.RECACCESS, e1, new AbsValName(e2)); :} |
-	kPodprograma |
-	LBRACKET oTipa:e1 RBRACKET {: RESULT = new AbsAlloc(e1); :} |
-	LPARENTHESIS oVrednosti RPARENTHESIS ;
+	BOOL_CONST:e1
+	{:
+		RESULT = new AbsAtomConst(e1, AbsAtomConst.BOOL);
+	:}
+	|
+	CHAR_CONST:e1
+	{:
+		RESULT = new AbsAtomConst(e1, AbsAtomConst.CHAR);
+	:}
+	|
+	INT_CONST:e1
+	{:
+		RESULT = new AbsAtomConst(e1, AbsAtomConst.INT);
+	:}
+	|
+	NIL
+	{:
+		RESULT = new AbsNilConst();
+	:}
+	|
+	PTR oVrednosti:e1
+	{:
+		RESULT = new AbsUnExpr(AbsUnExpr.MEM, e1);
+	:}	
+	%prec MEM
+	|
+	ADD oVrednosti:e1
+	{:
+		RESULT = new AbsUnExpr(AbsUnExpr.ADD, e1);
+	:}
+	%prec UADD
+	|
+	SUB oVrednosti:e1
+	{:
+		RESULT = new AbsUnExpr(AbsUnExpr.SUB, e1);
+	:}
+	%prec USUB
+	|
+	NOT oVrednosti:e1
+	{:
+		RESULT = new AbsUnExpr(AbsUnExpr.NOT, e1);
+	:}
+	|
+	oVrednosti:e1 PTR
+	{:
+		RESULT = new AbsUnExpr(AbsUnExpr.VAL, e1);
+	:}
+	%prec VAL
+	|
+	oVrednosti:e1 MUL oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.MUL, e1, e2);
+	:}	
+	|
+	oVrednosti:e1 DIV oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.DIV, e1, e2);
+	:}
+	|
+	oVrednosti:e1 ADD oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.ADD, e1, e2);
+	:}
+	|
+	oVrednosti:e1 SUB oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.SUB, e1, e2);
+	:}
+	|
+	oVrednosti:e1 EQU oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.EQU, e1, e2);
+	:}
+	|
+	oVrednosti:e1 NEQ oVrednosti:e2
+	{:	
+		RESULT = new AbsBinExpr(AbsBinExpr.NEQ, e1, e2);
+	:}
+	|
+	oVrednosti:e1 LTH oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.LTH, e1, e2);
+	:}
+	|
+	oVrednosti:e1 GTH oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.GTH, e1, e2);
+	:}
+	|
+	oVrednosti:e1 LEQ oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.LEQ, e1, e2);
+	:}
+	|
+	oVrednosti:e1 GEQ oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.GEQ, e1, e2);
+	:}
+	|
+	oVrednosti:e1 AND oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.AND, e1, e2);
+	:}
+	|
+	oVrednosti:e1 OR oVrednosti:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.OR, e1, e2);
+	:}
+	|
+	IDENTIFIER:e1
+	{:
+		RESULT = new AbsValName(e1); 
+	:}
+	|
+	oVrednosti:e1 LBRACKET oVrednosti:e2 RBRACKET
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.ARRACCESS, e1, e2);
+	:}
+	|
+	oVrednosti:e1 DOT IDENTIFIER:e2
+	{:
+		RESULT = new AbsBinExpr(AbsBinExpr.RECACCESS, e1, new AbsValName(e2));
+	:}
+	|
+	kPodprograma:e1
+	{:
+		RESULT = e1;
+	:}
+	|
+	LBRACKET oTipa:e1 RBRACKET
+	{:
+		RESULT = new AbsAlloc(e1);
+	:}
+	|
+	LPARENTHESIS oVrednosti:e1 RPARENTHESIS
+	{:
+		RESULT = e1;
+	:} ;
 kPodprograma ::=
-	IDENTIFIER LPARENTHESIS koParametrov RPARENTHESIS |
-	IDENTIFIER LPARENTHESIS RPARENTHESIS ;
+	IDENTIFIER:e1 LPARENTHESIS koParametrov:l1 RPARENTHESIS
+	{:
+		RESULT = new AbsCallExpr(new AbsValName(e1), l1);
+	:}
+	|
+	IDENTIFIER:e1 LPARENTHESIS RPARENTHESIS
+	{:
+		RESULT = new AbsCallExpr(new AbsValName(e1), new AbsValExprs());
+	:} ;
 koParametrov ::=
-	oVrednosti COMMA koParametrov |
-	oVrednosti ;
+	oVrednosti:e1 COMMA koParametrov:l1
+	{:
+		l1.exprs.add(e1);
+		RESULT = l1;
+	:}
+	|
+	oVrednosti:e1
+	{:
+		AbsValExprs l1 = new AbsValExprs();
+		l1.exprs.add(e1);
+		RESULT = l1;
+	:} ;
 
 stavek ::=
-	oVrednosti |
-	oVrednosti ASSIGN oVrednosti |
-	ifStavek |
-	WHILE oVrednosti DO stavek |
-	FOR IDENTIFIER ASSIGN oVrednosti TO oVrednosti DO stavek |
-	sStavek ;
+	oVrednosti:e1
+	{:
+		RESULT = new AbsExprStmt(e1);
+	:}
+	|
+	oVrednosti:e1 ASSIGN oVrednosti:e2
+	{:
+		RESULT = new AbsAssignStmt(e1, e2);
+	:}
+	|
+	ifStavek:e1
+	{:
+		RESULT = e1;
+	:}
+	|
+	WHILE oVrednosti:e1 DO stavek:e2
+	{:
+		RESULT = new AbsWhileStmt(e1, e2);
+	:}
+	|
+	FOR IDENTIFIER:e1 ASSIGN oVrednosti:e2 TO oVrednosti:e3 DO stavek:e4
+	{:
+		RESULT = new AbsForStmt(new AbsValName(e1), e2, e3, e4);
+	:}
+	|
+	sStavek:e1
+	{:
+		RESULT = e1;
+	:} ;
 ifStavek ::=
-	IF oVrednosti THEN stavek ELSE stavek |
-	IF oVrednosti THEN stavek ;
+	IF oVrednosti:e1 THEN stavek:e2 ELSE stavek:e3
+	{:
+		RESULT = new AbsIfStmt(e1, e2, e3);
+	:}
+	|
+	IF oVrednosti:e1 THEN stavek:e2 
+	{:
+		RESULT = new AbsIfStmt(e1, e2, new AbsBlockStmt(new AbsStmts()));
+	:};
 
 sStavek ::=
-	BEGIN END |
-	BEGIN stavki END ;
+	BEGIN END
+	{:
+		RESULT = new AbsBlockStmt(new AbsStmts());
+	:}
+	|
+	BEGIN stavki:l1 END 
+	{:
+		RESULT = new AbsBlockStmt(l1);
+	:} ;
 stavki ::=
-	stavek SEMIC stavki |
-	stavek ;
+	stavek:e1 SEMIC stavki:l1
+	{:
+		l1.stmts.add(e1);
+		RESULT = l1;
+	:}
+	|
+	stavek:e1
+	{:
+		AbsStmts l1 = new AbsStmts();
+		l1.stmts.add(e1);
+		RESULT = l1;
+	:} ;
