@@ -146,13 +146,13 @@ dPodprogramov ::=
 	|
 	dProcedure:e1 dPodprogramov:l1
 	{:
-		l1.decls.add(e1);
-		RESULT = l1;		
+		l1.decls.addFirst(e1);
+		RESULT = l1;
 	:}
 	|
 	dFunkcije:e1 dPodprogramov:l1
 	{:
-		l1.decls.add(e1);
+		l1.decls.addFirst(e1);
 		RESULT = l1;		
 	:} ;
 
@@ -181,8 +181,8 @@ oParametrov ::=
 opParametrov ::=
 	IDENTIFIER:e1 COLON oTipa:e2 SEMIC opParametrov:l1
 	{:
-		l1.decls.add(new AbsTypeDecl(new AbsDeclName(e1), e2));
-		RESULT = l1;		
+		l1.decls.addFirst(new AbsTypeDecl(new AbsDeclName(e1), e2));
+		RESULT = l1;
 	:}
 	|
 	IDENTIFIER:e1 COLON oTipa:e2
@@ -392,7 +392,7 @@ koParametrov ::=
 	oVrednosti:e1
 	{:
 		AbsValExprs l1 = new AbsValExprs();
-		l1.exprs.add(e1);
+		l1.exprs.addFirst(e1);
 		RESULT = l1;
 	:} ;
 
@@ -450,7 +450,7 @@ sStavek ::=
 stavki ::=
 	stavek:e1 SEMIC stavki:l1
 	{:
-		l1.stmts.add(e1);
+		l1.stmts.addFirst(e1);
 		RESULT = l1;
 	:}
 	|
