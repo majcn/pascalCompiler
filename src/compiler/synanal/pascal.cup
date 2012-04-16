@@ -74,8 +74,10 @@ dSkupaj ::=
 		r.decls.addAll(typeDecls.decls);
 		r.decls.addAll(varDecls.decls);
 		r.decls.addAll(funProcDecls.decls);
-		r.setBeg(r.decls.get(0));
-		r.setEnd(r.decls.get(r.decls.size() - 1));
+		if(r.decls.size() != 0) {
+			r.setBeg(r.decls.get(0));
+			r.setEnd(r.decls.get(r.decls.size() - 1));
+		}
 		RESULT = r;
 	:} ;
 
