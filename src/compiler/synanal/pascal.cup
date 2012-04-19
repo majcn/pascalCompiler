@@ -305,6 +305,7 @@ opParametrov ::=
 		typeDecl.setBeg(declName);
 		typeDecl.setEnd(type);
 		
+		parsDecls.decls.add(typeDecl);
 		parsDecls.setBeg(typeDecl);
 		parsDecls.setEnd(typeDecl);
 		RESULT = parsDecls;
