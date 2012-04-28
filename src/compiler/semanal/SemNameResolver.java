@@ -201,7 +201,7 @@ public class SemNameResolver implements AbsVisitor {
 			SemTable.ins(acceptor.name.name, acceptor);
 		} catch (SemIllegalInsertException e) {
 			warningMsgRedefined(acceptor.begLine, acceptor.name.name);
-		}	
+		}
 	}
 
 	@Override

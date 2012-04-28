@@ -24,7 +24,7 @@ public class SemTypeChecker implements AbsVisitor {
 	}
 	
 	public void warningMsgWrongType(int line, String oper) {
-		Report.warning(String.format("line %d: wrong type near %s", line, oper));
+		Report.warning(String.format("line %d: wrong type near '%s'", line, oper));
 		error = true;
 	}
 
@@ -34,6 +34,7 @@ public class SemTypeChecker implements AbsVisitor {
 		acceptor.type.accept(this);
 		
 		SemType a = SemDesc.getActualType(acceptor.type);
+		if(a==null) return;
 		if(a.coercesTo(typeInt)) {
 			SemDesc.setActualType(acceptor, typeInt);
 		} else {
@@ -50,6 +51,7 @@ public class SemTypeChecker implements AbsVisitor {
 		
 		SemType a = SemDesc.getActualType(acceptor.loBound);
 		SemType b = SemDesc.getActualType(acceptor.hiBound);
+		if(a==null || b==null) return;
 		if(a.coercesTo(typeInt) && b.coercesTo(typeInt)) {
 			SemDesc.setActualType(acceptor, new SemArrayType(SemDesc.getActualType(acceptor.type), SemDesc.getActualConst(acceptor.loBound), SemDesc.getActualConst(acceptor.hiBound)));
 		} else {
@@ -65,6 +67,7 @@ public class SemTypeChecker implements AbsVisitor {
 		
 		SemType a = SemDesc.getActualType(acceptor.srcExpr);
 		SemType b = SemDesc.getActualType(acceptor.dstExpr);
+		if(a==null || b==null) return;
 		if(!a.coercesTo(b) || !(a instanceof SemAtomType || a instanceof SemPointerType)) {
 			warningMsgWrongType(acceptor.begLine, ":=");
 		}
@@ -113,6 +116,7 @@ public class SemTypeChecker implements AbsVisitor {
 		String warningOper = "";
 		SemType a = SemDesc.getActualType(acceptor.fstExpr);
 		SemType b = SemDesc.getActualType(acceptor.sndExpr);
+		if(a==null || b==null) return;
 		switch (acceptor.oper) {
 		case AbsBinExpr.ADD:
 			if (warningOper == "") warningOper = "+";
@@ -163,8 +167,18 @@ public class SemTypeChecker implements AbsVisitor {
 				warningMsgWrongType(acceptor.begLine, warningOper);
 			}
 			break;
+		case AbsBinExpr.RECACCESS:
+			if(a instanceof SemRecordType) {
+				SemRecordType aa = (SemRecordType)a;
+				for(int i=0; i<aa.getNumFields(); i++)
+					if(aa.getFieldName(i) == SemDesc.getNameDecl(acceptor.sndExpr))
+						SemDesc.setActualType(acceptor, aa.getFieldType(i));
+			}
+			if(SemDesc.getActualType(acceptor) == null)
+				warningMsgWrongType(acceptor.begLine, ".");
+			break;
+			//TODO record precekirej
 		}
-		//TODO record
 	}
 
 	@Override
@@ -219,7 +233,7 @@ public class SemTypeChecker implements AbsVisitor {
 		SemType a = SemDesc.getActualType(acceptor.name);
 		SemType b = SemDesc.getActualType(acceptor.loBound);
 		SemType c = SemDesc.getActualType(acceptor.hiBound);
-		
+		if(a==null || b==null || c==null) return;
 		if(a.coercesTo(typeInt) && b.coercesTo(typeInt) && c.coercesTo(typeInt))
 			warningMsgWrongType(acceptor.begLine, "FOR");
 	}
@@ -241,6 +255,7 @@ public class SemTypeChecker implements AbsVisitor {
 		acceptor.elseStmt.accept(this);
 		
 		SemType a = SemDesc.getActualType(acceptor.cond);
+		if(a==null) return;
 		if(!a.coercesTo(typeBool))
 			warningMsgWrongType(acceptor.begLine, "IF");
 	}
@@ -263,11 +278,9 @@ public class SemTypeChecker implements AbsVisitor {
 	@Override
 	public void visit(AbsProcDecl acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsProcDecl");
-//		SemTable.newScope();
-			acceptor.pars.accept(this);
-			acceptor.decls.accept(this);
-			acceptor.stmt.accept(this);
-//		SemTable.oldScope();
+		acceptor.pars.accept(this);
+		acceptor.decls.accept(this);
+		acceptor.stmt.accept(this);
 	}
 
 	@Override
@@ -381,6 +394,7 @@ public class SemTypeChecker implements AbsVisitor {
 		acceptor.stmt.accept(this);
 		
 		SemType a = SemDesc.getActualType(acceptor.cond);
+		if(a==null) return;
 		if (!a.coercesTo(typeBool)) {
 			warningMsgWrongType(acceptor.begLine, "WHILE");
 		}
