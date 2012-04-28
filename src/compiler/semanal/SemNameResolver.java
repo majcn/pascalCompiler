@@ -150,11 +150,6 @@ public class SemNameResolver implements AbsVisitor {
 	@Override
 	public void visit(AbsFunDecl acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsFunDecl");
-		try {
-			SemTable.ins(acceptor.name.name, acceptor);
-		} catch (SemIllegalInsertException e) {
-			warningMsgRedefined(acceptor.begLine, acceptor.name.name);
-		}
 		SemTable.newScope();
 			try {
 				SemTable.ins(acceptor.name.name, acceptor);
@@ -164,6 +159,11 @@ public class SemNameResolver implements AbsVisitor {
 			acceptor.decls.accept(this);
 			acceptor.stmt.accept(this);
 		SemTable.oldScope();
+		try {
+			SemTable.ins(acceptor.name.name, acceptor);
+		} catch (SemIllegalInsertException e) {
+			warningMsgRedefined(acceptor.begLine, acceptor.name.name);
+		}
 	}
 
 	@Override
@@ -188,12 +188,7 @@ public class SemNameResolver implements AbsVisitor {
 
 	@Override
 	public void visit(AbsProcDecl acceptor) {
-		if(debug) System.out.println(acceptor.begLine + " AbsProcDecl");
-		try {
-			SemTable.ins(acceptor.name.name, acceptor);
-		} catch (SemIllegalInsertException e) {
-			warningMsgRedefined(acceptor.begLine, acceptor.name.name);
-		}		
+		if(debug) System.out.println(acceptor.begLine + " AbsProcDecl");	
 		SemTable.newScope();
 			try {
 				SemTable.ins(acceptor.name.name, acceptor);
@@ -202,6 +197,11 @@ public class SemNameResolver implements AbsVisitor {
 			acceptor.decls.accept(this);
 			acceptor.stmt.accept(this);
 		SemTable.oldScope();
+		try {
+			SemTable.ins(acceptor.name.name, acceptor);
+		} catch (SemIllegalInsertException e) {
+			warningMsgRedefined(acceptor.begLine, acceptor.name.name);
+		}	
 	}
 
 	@Override
