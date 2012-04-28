@@ -10,7 +10,7 @@ public class SemNameResolver implements AbsVisitor {
 	private boolean debug = false;
 	
 	private int record = 0;
-	private boolean isRecord() {
+	private boolean notRecord() {
 		return record == 0;
 	}
 	
@@ -68,7 +68,7 @@ public class SemNameResolver implements AbsVisitor {
 		if(debug) System.out.println(acceptor.begLine + " AbsBinExpr");
 		acceptor.fstExpr.accept(this);
 		acceptor.sndExpr.accept(this);
-		
+
 		Integer a = SemDesc.getActualConst(acceptor.fstExpr);
 		Integer b = SemDesc.getActualConst(acceptor.sndExpr);
 		if(a != null && b != null) {
@@ -129,7 +129,7 @@ public class SemNameResolver implements AbsVisitor {
 		if(debug) System.out.println(acceptor.begLine + " AbsDecls");
 		for(AbsDecl e: acceptor.decls) {
 			e.accept(this);
-		}			
+		}
 	}
 
 	@Override
@@ -229,7 +229,7 @@ public class SemNameResolver implements AbsVisitor {
 	@Override
 	public void visit(AbsTypeDecl acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsTypeDecl");
-		if (isRecord()) {
+		if (notRecord()) {
 			try {
 				SemTable.ins(acceptor.name.name, acceptor);
 			} catch (SemIllegalInsertException e) {
