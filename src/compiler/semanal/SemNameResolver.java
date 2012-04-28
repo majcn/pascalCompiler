@@ -60,13 +60,17 @@ public class SemNameResolver implements AbsVisitor {
 	@Override
 	public void visit(AbsAtomType acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsAtomType");
-		//empty visitor
 	}
 
 	@Override
 	public void visit(AbsBinExpr acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsBinExpr");
+		
 		acceptor.fstExpr.accept(this);
+		
+		if(acceptor.oper == AbsBinExpr.RECACCESS)
+			record++;
+		
 		acceptor.sndExpr.accept(this);
 
 		Integer a = SemDesc.getActualConst(acceptor.fstExpr);
@@ -90,6 +94,9 @@ public class SemNameResolver implements AbsVisitor {
 				break;
 			}
 		}
+		
+		if(acceptor.oper == AbsBinExpr.RECACCESS)
+			record--;
 	}
 
 	@Override
@@ -278,14 +285,16 @@ public class SemNameResolver implements AbsVisitor {
 	@Override
 	public void visit(AbsValName acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsValName");
-		AbsDecl decl = SemTable.fnd(acceptor.name);
-		if(decl == null) {
-			warningMsgUndefined(acceptor.begLine, acceptor.name);
-		} else {
-			SemDesc.setNameDecl(acceptor, decl);
-			Integer a = SemDesc.getActualConst(decl);
-			if(a != null)
-				SemDesc.setActualConst(acceptor, a);
+		if(notRecord()) {
+			AbsDecl decl = SemTable.fnd(acceptor.name);
+			if(decl == null) {
+				warningMsgUndefined(acceptor.begLine, acceptor.name);
+			} else {
+				SemDesc.setNameDecl(acceptor, decl);
+				Integer a = SemDesc.getActualConst(decl);
+				if(a != null)
+					SemDesc.setActualConst(acceptor, a);
+			}
 		}
 	}
 

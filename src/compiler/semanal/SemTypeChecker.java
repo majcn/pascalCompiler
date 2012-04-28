@@ -27,6 +27,11 @@ public class SemTypeChecker implements AbsVisitor {
 		Report.warning(String.format("line %d: wrong type near '%s'", line, oper));
 		error = true;
 	}
+	
+	public void warningMsgRedefined(int line, String name) {
+		Report.warning(String.format("line %d: '%s' is redefined", line, name));
+		error = true;
+	}
 
 	@Override
 	public void visit(AbsAlloc acceptor) {
@@ -116,6 +121,23 @@ public class SemTypeChecker implements AbsVisitor {
 		String warningOper = "";
 		SemType a = SemDesc.getActualType(acceptor.fstExpr);
 		SemType b = SemDesc.getActualType(acceptor.sndExpr);
+		
+		if(acceptor.oper == AbsBinExpr.RECACCESS) {
+			if(acceptor.sndExpr instanceof AbsValName) {
+				SemRecordType aa = (SemRecordType)a;
+				for(int i=0; i<aa.getNumFields(); i++) {
+					if(aa.getFieldName(i).name.equals(((AbsValName)acceptor.sndExpr).name)) {
+						SemDesc.setActualType(acceptor, aa.getFieldType(i));
+					}
+				}
+				if(SemDesc.getActualType(acceptor) == null) {
+					warningMsgWrongType(acceptor.begLine, ".");
+				}
+			} else {
+				warningMsgWrongType(acceptor.begLine, ".");
+			}
+		}
+		
 		if(a==null || b==null) return;
 		switch (acceptor.oper) {
 		case AbsBinExpr.ADD:
@@ -167,17 +189,6 @@ public class SemTypeChecker implements AbsVisitor {
 				warningMsgWrongType(acceptor.begLine, warningOper);
 			}
 			break;
-		case AbsBinExpr.RECACCESS:
-			if(a instanceof SemRecordType) {
-				SemRecordType aa = (SemRecordType)a;
-				for(int i=0; i<aa.getNumFields(); i++)
-					if(aa.getFieldName(i) == SemDesc.getNameDecl(acceptor.sndExpr))
-						SemDesc.setActualType(acceptor, aa.getFieldType(i));
-			}
-			if(SemDesc.getActualType(acceptor) == null)
-				warningMsgWrongType(acceptor.begLine, ".");
-			break;
-			//TODO record precekirej
 		}
 	}
 
@@ -312,10 +323,20 @@ public class SemTypeChecker implements AbsVisitor {
 		if(debug) System.out.println(acceptor.begLine + " AbsTypeDecl");
 		acceptor.type.accept(this);
 		
+		boolean err = false;
 		if(notRecord())
 			SemDesc.setActualType(acceptor, SemDesc.getActualType(acceptor.type));
-		else
-			records.get(record).addField(acceptor.name, SemDesc.getActualType(acceptor.type));
+		else {
+			SemRecordType aa = records.get(record);
+			for(int i=0; i<aa.getNumFields(); i++) {
+				if(aa.getFieldName(i).name.equals(acceptor.name.name)) {
+					warningMsgRedefined(acceptor.begLine, acceptor.name.name);
+					err = true;
+				}
+			}
+			if(!err)
+				aa.addField(acceptor.name, SemDesc.getActualType(acceptor.type));
+		}
 	}
 
 	@Override
