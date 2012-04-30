@@ -28,6 +28,11 @@ public class SemTypeChecker implements AbsVisitor {
 		error = true;
 	}
 	
+	public void warningMsgWrongArgs(int line, String name) {
+		Report.warning(String.format("line %d: wrong args when call '%s'", line, name));
+		error = true;
+	}
+	
 	public void warningMsgRedefined(int line, String name) {
 		Report.warning(String.format("line %d: '%s' is redefined", line, name));
 		error = true;
@@ -203,6 +208,32 @@ public class SemTypeChecker implements AbsVisitor {
 		if(debug) System.out.println(acceptor.begLine + " AbsCallExpr");
 		acceptor.name.accept(this);
 		acceptor.args.accept(this);
+		
+		AbsDecl a = SemDesc.getNameDecl(acceptor.name);
+		if(a instanceof AbsFunDecl) {
+			AbsFunDecl aa = (AbsFunDecl)a;
+			if(aa.pars.decls.size() == acceptor.args.exprs.size()) {
+				for(int i=0; i<aa.pars.decls.size(); i++) {
+					if(!SemDesc.getActualType(aa.pars.decls.get(i)).coercesTo(SemDesc.getActualType(acceptor.args.exprs.get(i)))) {
+						warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
+					}
+				}
+			} else {
+				warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
+			}
+		}
+		if(a instanceof AbsProcDecl) {
+			AbsProcDecl aa = (AbsProcDecl)a;
+			if(aa.pars.decls.size() == acceptor.args.exprs.size()) {
+				for(int i=0; i<aa.pars.decls.size(); i++) {
+					if(!SemDesc.getActualType(aa.pars.decls.get(i)).coercesTo(SemDesc.getActualType(acceptor.args.exprs.get(i)))) {
+						warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
+					}
+				}
+			} else {
+				warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
+			}
+		}
 	}
 
 	@Override
@@ -231,6 +262,10 @@ public class SemTypeChecker implements AbsVisitor {
 	public void visit(AbsExprStmt acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsExprStmt");
 		acceptor.expr.accept(this);
+		
+		if(!(acceptor.expr instanceof AbsCallExpr)) {
+			warningMsgWrongType(acceptor.begLine, "calling");
+		}
 	}
 
 	@Override
