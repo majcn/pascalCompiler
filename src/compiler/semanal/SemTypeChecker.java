@@ -310,7 +310,7 @@ public class SemTypeChecker implements AbsVisitor {
 	public void visit(AbsNilConst acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsNilConst");
 		
-		SemDesc.setActualType(acceptor, typeVoid);
+		SemDesc.setActualType(acceptor, new SemPointerType(typeVoid));
 	}
 
 	@Override
