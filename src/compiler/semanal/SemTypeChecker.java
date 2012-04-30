@@ -225,7 +225,7 @@ public class SemTypeChecker implements AbsVisitor {
 			AbsFunDecl aa = (AbsFunDecl)a;
 			if(aa.pars.decls.size() == acceptor.args.exprs.size()) {
 				for(int i=0; i<aa.pars.decls.size(); i++) {
-					if(!SemDesc.getActualType(aa.pars.decls.get(i)).coercesTo(SemDesc.getActualType(acceptor.args.exprs.get(i)))) {
+					if(!SemDesc.getActualType(aa.pars.decls.get(aa.pars.decls.size()-i-1)).coercesTo(SemDesc.getActualType(acceptor.args.exprs.get(i)))) {
 						warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
 					}
 				}
@@ -237,7 +237,7 @@ public class SemTypeChecker implements AbsVisitor {
 			AbsProcDecl aa = (AbsProcDecl)a;
 			if(aa.pars.decls.size() == acceptor.args.exprs.size()) {
 				for(int i=0; i<aa.pars.decls.size(); i++) {
-					if(!SemDesc.getActualType(aa.pars.decls.get(i)).coercesTo(SemDesc.getActualType(acceptor.args.exprs.get(i)))) {
+					if(!SemDesc.getActualType(aa.pars.decls.get(aa.pars.decls.size()-i-1)).coercesTo(SemDesc.getActualType(acceptor.args.exprs.get(i)))) {
 						warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
 					}
 				}
