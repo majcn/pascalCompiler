@@ -2,6 +2,8 @@ package compiler.semanal;
 
 import java.util.HashMap;
 
+import com.sun.xml.internal.bind.v2.schemagen.episode.Klass;
+
 import compiler.abstree.AbsVisitor;
 import compiler.abstree.tree.*;
 import compiler.semanal.type.*;
@@ -23,6 +25,8 @@ public class SemTypeChecker implements AbsVisitor {
 		return record == 0;
 	}
 	
+	private boolean procCall = false;
+	
 	public void warningMsgWrongType(int line, String oper) {
 		Report.warning(String.format("line %d: wrong type near '%s'", line, oper));
 		error = true;
@@ -30,6 +34,11 @@ public class SemTypeChecker implements AbsVisitor {
 	
 	public void warningMsgWrongArgs(int line, String name) {
 		Report.warning(String.format("line %d: wrong args when call '%s'", line, name));
+		error = true;
+	}
+	
+	public void warningMsgWrongCall(int line, String name) {
+		Report.warning(String.format("line %d: '%s' need to be procedure", line, name));
 		error = true;
 	}
 	
@@ -210,6 +219,8 @@ public class SemTypeChecker implements AbsVisitor {
 		acceptor.args.accept(this);
 		
 		AbsDecl a = SemDesc.getNameDecl(acceptor.name);
+		if(a instanceof AbsFunDecl && procCall)
+			warningMsgWrongCall(acceptor.begLine, acceptor.name.name);
 		if(a instanceof AbsFunDecl) {
 			AbsFunDecl aa = (AbsFunDecl)a;
 			if(aa.pars.decls.size() == acceptor.args.exprs.size()) {
@@ -234,6 +245,8 @@ public class SemTypeChecker implements AbsVisitor {
 				warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
 			}
 		}
+		
+		procCall = false;
 	}
 
 	@Override
@@ -261,6 +274,7 @@ public class SemTypeChecker implements AbsVisitor {
 	@Override
 	public void visit(AbsExprStmt acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsExprStmt");
+		procCall = true;
 		acceptor.expr.accept(this);
 		
 		if(!(acceptor.expr instanceof AbsCallExpr)) {
