@@ -2,8 +2,6 @@ package compiler.semanal;
 
 import java.util.HashMap;
 
-import com.sun.xml.internal.bind.v2.schemagen.episode.Klass;
-
 import compiler.abstree.AbsVisitor;
 import compiler.abstree.tree.*;
 import compiler.semanal.type.*;
@@ -293,8 +291,7 @@ public class SemTypeChecker implements AbsVisitor {
 		SemType a = SemDesc.getActualType(acceptor.name);
 		SemType b = SemDesc.getActualType(acceptor.loBound);
 		SemType c = SemDesc.getActualType(acceptor.hiBound);
-		if(a==null || b==null || c==null) return;
-		if(a.coercesTo(typeInt) && b.coercesTo(typeInt) && c.coercesTo(typeInt))
+		if(a==null || b==null || c==null || !a.coercesTo(typeInt) || !b.coercesTo(typeInt) || !c.coercesTo(typeInt))
 			warningMsgWrongType(acceptor.begLine, "FOR");
 	}
 
