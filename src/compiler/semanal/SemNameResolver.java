@@ -6,7 +6,7 @@ import compiler.report.Report;
 
 public class SemNameResolver implements AbsVisitor {
 	
-	protected boolean error = false;
+	public boolean error = false;
 	private boolean debug = false;
 	
 	private int record = 0;

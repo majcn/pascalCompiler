@@ -9,7 +9,7 @@ import compiler.report.Report;
 
 public class SemTypeChecker implements AbsVisitor {
 	
-	protected boolean error = false;
+	public boolean error = false;
 	private boolean debug = false;
 	
 	private SemType typeInt = new SemAtomType(SemAtomType.INT);
