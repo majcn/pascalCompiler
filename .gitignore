@@ -11,6 +11,7 @@ synanal.xml
 lexanal.xml
 abstree.xml
 semanal.xml
+frames.xml
 PascalLex.java
 PascalSyn.java
 PascalTok.java

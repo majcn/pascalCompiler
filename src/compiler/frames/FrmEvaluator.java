@@ -14,6 +14,13 @@ public class FrmEvaluator extends AbsEmptyVisitor {
 	
 	public void visit(AbsFunDecl acceptor) {
 		FrmFrame frame = new FrmFrame(acceptor, SemDesc.getScope(acceptor));
+		for (AbsDecl decl : acceptor.pars.decls) {
+			if (decl instanceof AbsVarDecl) {
+				AbsVarDecl varDecl = (AbsVarDecl)decl;
+				FrmArgAccess access = new FrmArgAccess(varDecl, frame);
+				FrmDesc.setAccess(varDecl, access);
+			}
+		}
 		for (AbsDecl decl : acceptor.decls.decls) {
 			if (decl instanceof AbsVarDecl) {
 				AbsVarDecl varDecl = (AbsVarDecl)decl;

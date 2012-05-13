@@ -29,7 +29,7 @@ terminal String ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, 
 terminal String ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE ;
 
 non terminal AbsProgram koda ;
-non terminal AbsDecls dSkupaj, dKonstant, dpKonstant, dTipov, dpTipov, dSpremenljivk, dpSpremenljivk, dPodprogramov, oParametrov, opParametrov ;
+non terminal AbsDecls dSkupaj, dKonstant, dpKonstant, dTipov, dpTipov, dSpremenljivk, dpSpremenljivk, dPodprogramov, oParametrov, opParametrovVar, opParametrovType ;
 non terminal AbsProcDecl dProcedure ;
 non terminal AbsFunDecl dFunkcije ;
 non terminal AbsTypeExpr oTipa ;
@@ -263,7 +263,7 @@ dFunkcije ::=
 	:} ;
 
 oParametrov ::=
-	LPARENTHESIS:b opParametrov:parsDecls RPARENTHESIS:e
+	LPARENTHESIS:b opParametrovVar:parsDecls RPARENTHESIS:e
 	{:
 		parsDecls.setBeg(b, bleft, bright);
 		parsDecls.setEnd(e, eleft, eright);
@@ -277,19 +277,19 @@ oParametrov ::=
 		r.setEnd(e, eleft, eright);
 		RESULT = r;
 	:} ;
-opParametrov ::=
-	IDENTIFIER:name COLON oTipa:type SEMIC opParametrov:parsDecls
+opParametrovVar ::=
+	IDENTIFIER:name COLON oTipa:type SEMIC opParametrovVar:parsDecls
 	{:
 		AbsDeclName declName = new AbsDeclName(name);
 		declName.setBeg(name, nameleft, nameright);
 		declName.setEnd(name, nameleft, nameright);
 		
-		AbsTypeDecl typeDecl = new AbsTypeDecl(declName, type);
-		typeDecl.setBeg(declName);
-		typeDecl.setEnd(type);
+		AbsVarDecl varDecl = new AbsVarDecl(declName, type);
+		varDecl.setBeg(declName);
+		varDecl.setEnd(type);
 		
-		parsDecls.decls.addFirst(typeDecl);
-		parsDecls.setBeg(typeDecl);
+		parsDecls.decls.addFirst(varDecl);
+		parsDecls.setBeg(varDecl);
 		RESULT = parsDecls;
 	:}
 	|
@@ -301,13 +301,13 @@ opParametrov ::=
 		declName.setBeg(name, nameleft, nameright);
 		declName.setEnd(name, nameleft, nameright);
 		
-		AbsTypeDecl typeDecl = new AbsTypeDecl(declName, type);
-		typeDecl.setBeg(declName);
-		typeDecl.setEnd(type);
+		AbsVarDecl varDecl = new AbsVarDecl(declName, type);
+		varDecl.setBeg(declName);
+		varDecl.setEnd(type);
 		
-		parsDecls.decls.add(typeDecl);
-		parsDecls.setBeg(typeDecl);
-		parsDecls.setEnd(typeDecl);
+		parsDecls.decls.add(varDecl);
+		parsDecls.setBeg(varDecl);
+		parsDecls.setEnd(varDecl);
 		RESULT = parsDecls;
 	:} ;
 
@@ -352,7 +352,7 @@ oTipa ::=
 		RESULT = r;
 	:}
 	|
-	RECORD:b opParametrov:fields END:e
+	RECORD:b opParametrovType:fields END:e
 	{:
 		AbsRecordType r = new AbsRecordType(fields);
 		r.setBeg(b, bleft, bright);
@@ -373,6 +373,39 @@ oTipa ::=
 		type.setBeg(b, bleft, bright);
 		type.setEnd(e, eleft, eright);
 		RESULT = type;
+	:} ;
+opParametrovType ::=
+	IDENTIFIER:name COLON oTipa:type SEMIC opParametrovType:parsDecls
+	{:
+		AbsDeclName declName = new AbsDeclName(name);
+		declName.setBeg(name, nameleft, nameright);
+		declName.setEnd(name, nameleft, nameright);
+		
+		AbsTypeDecl typeDecl = new AbsTypeDecl(declName, type);
+		typeDecl.setBeg(declName);
+		typeDecl.setEnd(type);
+		
+		parsDecls.decls.addFirst(typeDecl);
+		parsDecls.setBeg(typeDecl);
+		RESULT = parsDecls;
+	:}
+	|
+	IDENTIFIER:name COLON oTipa:type
+	{:
+		AbsDecls parsDecls = new AbsDecls();
+		
+		AbsDeclName declName = new AbsDeclName(name);
+		declName.setBeg(name, nameleft, nameright);
+		declName.setEnd(name, nameleft, nameright);
+		
+		AbsTypeDecl typeDecl = new AbsTypeDecl(declName, type);
+		typeDecl.setBeg(declName);
+		typeDecl.setEnd(type);
+		
+		parsDecls.decls.add(typeDecl);
+		parsDecls.setBeg(typeDecl);
+		parsDecls.setEnd(typeDecl);
+		RESULT = parsDecls;
 	:} ;
 
 oVrednosti ::=
