@@ -35,8 +35,11 @@ public class SemTypeChecker implements AbsVisitor {
 		error = true;
 	}
 	
-	public void warningMsgWrongCall(int line, String name) {
-		Report.warning(String.format("line %d: '%s' need to be procedure", line, name));
+	public void warningMsgWrongCall(int line, String name, boolean needFunc) {
+		if(needFunc)
+			Report.warning(String.format("line %d: '%s' need to be function", line, name));
+		else
+			Report.warning(String.format("line %d: '%s' need to be procedure", line, name));
 		error = true;
 	}
 	
@@ -134,6 +137,16 @@ public class SemTypeChecker implements AbsVisitor {
 		SemType a = SemDesc.getActualType(acceptor.fstExpr);
 		SemType b = SemDesc.getActualType(acceptor.sndExpr);
 		
+		if(acceptor.fstExpr instanceof AbsCallExpr) {
+			AbsCallExpr callExpr = (AbsCallExpr)acceptor.fstExpr;
+			if(SemDesc.getNameDecl(callExpr.name) instanceof AbsFunDecl) {
+				AbsFunDecl funDecl = (AbsFunDecl)SemDesc.getNameDecl(callExpr.name);
+				a = SemDesc.getActualType(funDecl.type);
+			} else {
+				warningMsgWrongCall(callExpr.begLine, callExpr.name.name, true);
+			}
+		}
+
 		if(acceptor.oper == AbsBinExpr.RECACCESS) {
 			if(acceptor.sndExpr instanceof AbsValName) {
 				SemRecordType aa = (SemRecordType)a;
@@ -218,7 +231,7 @@ public class SemTypeChecker implements AbsVisitor {
 		
 		AbsDecl a = SemDesc.getNameDecl(acceptor.name);
 		if(a instanceof AbsFunDecl && procCall)
-			warningMsgWrongCall(acceptor.begLine, acceptor.name.name);
+			warningMsgWrongCall(acceptor.begLine, acceptor.name.name, false);
 		if(a instanceof AbsFunDecl) {
 			AbsFunDecl aa = (AbsFunDecl)a;
 			if(aa.pars.decls.size() == acceptor.args.exprs.size()) {
