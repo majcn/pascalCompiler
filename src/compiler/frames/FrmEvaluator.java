@@ -35,15 +35,13 @@ public class FrmEvaluator implements AbsVisitor {
 			decl.accept(this);
 		}
 		curFrame = frame;
+		curFrame.sizeArgs = 4;
 		acceptor.stmt.accept(this);
-		int typeSize = SemDesc.getActualType(acceptor.type).size();
-		if(frame.sizeArgs < typeSize)
-			frame.sizeArgs = typeSize;
-		if(debug) System.out.println(frame.sizeArgs);
 		FrmDesc.setFrame(acceptor, frame);
 	}
 
 	public void visit(AbsProgram acceptor) {
+		FrmFrame frame = new FrmFrame(acceptor, -1);
 		for (AbsDecl decl : acceptor.decls.decls) {
 			if (decl instanceof AbsVarDecl) {
 				AbsVarDecl varDecl = (AbsVarDecl)decl;
@@ -52,6 +50,9 @@ public class FrmEvaluator implements AbsVisitor {
 			}
 			decl.accept(this);
 		}
+		curFrame = frame;
+		acceptor.stmt.accept(this);
+		FrmDesc.setFrame(acceptor, frame);
 	}
 	
 	public void visit(AbsProcDecl acceptor) {
@@ -136,14 +137,7 @@ public class FrmEvaluator implements AbsVisitor {
 
 	@Override
 	public void visit(AbsCallExpr acceptor) {
-		int callArgsSize = 4;
-		for (AbsValExpr expr : acceptor.args.exprs) {
-			try {
-				callArgsSize += SemDesc.getActualType(expr).size();
-			} catch (NullPointerException e) {
-				if(debug) System.out.println("SemType not found");
-			}
-		}
+		int callArgsSize = 4 * acceptor.args.exprs.size() + 4;
 		if(curFrame.sizeArgs < callArgsSize)
 			curFrame.sizeArgs = callArgsSize;
 	}
