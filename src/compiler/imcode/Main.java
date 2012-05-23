@@ -15,7 +15,6 @@ public class Main {
 	/** Zaporedje delov kode.  */
 	public static LinkedList<ImcChunk> chunks;
 
-
 	/**
 	 * Izvede prevajanje do faze semanticne analize.
 	 */
@@ -56,8 +55,13 @@ public class Main {
 		program.accept(new FrmEvaluator());
 
 		/* Izracunamo kose programa. */
+		PrintStream xml = XML.open("imcode");
 		IMCodeGenerator code = new IMCodeGenerator();
 		program.accept(code);
 		chunks = code.chunks;
+		for (ImcChunk chunk : chunks) {
+			chunk.toXML(xml);
+		}
+		XML.close("imcode", xml);
 	}
 }

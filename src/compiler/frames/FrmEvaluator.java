@@ -6,7 +6,7 @@ import compiler.semanal.*;
 
 public class FrmEvaluator implements AbsVisitor {
 
-	private boolean debug = true;
+	private boolean debug = false;
 	private FrmFrame curFrame;
 	
 	public void visit(AbsAtomType acceptor) {
