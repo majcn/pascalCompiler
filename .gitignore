@@ -12,6 +12,7 @@ lexanal.xml
 abstree.xml
 semanal.xml
 frames.xml
+imcode.xml
 PascalLex.java
 PascalSyn.java
 PascalTok.java
