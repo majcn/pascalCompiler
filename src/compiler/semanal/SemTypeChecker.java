@@ -55,11 +55,7 @@ public class SemTypeChecker implements AbsVisitor {
 		
 		SemType a = SemDesc.getActualType(acceptor.type);
 		if(a==null) return;
-		if(a.coercesTo(typeInt)) {
-			SemDesc.setActualType(acceptor, typeInt);
-		} else {
-			warningMsgWrongType(acceptor.begLine, "[]");
-		}
+		SemDesc.setActualType(acceptor, typeInt);
 	}
 
 	@Override
