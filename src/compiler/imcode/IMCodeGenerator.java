@@ -27,7 +27,8 @@ public class IMCodeGenerator implements AbsVisitor {
 	public void visit(AbsAlloc acceptor) {
 		SemType t = SemDesc.getActualType(acceptor.type);
 		ImcCALL c = new ImcCALL(FrmLabel.newLabel("malloc"));
-		// TODO c.args.add(FP)
+		c.args.add(new ImcCONST(t.size())); //fake FP
+		c.size.add(4);
 		c.args.add(new ImcCONST(t.size()));
 		c.size.add(4);
 		setResult(c);
