@@ -137,7 +137,7 @@ public class IMCodeGenerator implements AbsVisitor {
 		for(AbsValExpr e: acceptor.args.exprs) {
 			e.accept(this);
 			c.args.add((ImcExpr)getResult());
-			c.size.add(SemDesc.getActualType(e).size());
+			c.size.add(4); //SemDesc.getActualType(e).size()
 		}
 		setResult(c);
 	}
