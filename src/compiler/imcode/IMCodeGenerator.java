@@ -326,6 +326,11 @@ public class IMCodeGenerator implements AbsVisitor {
 			} else {
 				setResult(new ImcMEM(new ImcBINOP(ImcBINOP.ADD, new ImcTEMP(aa.frame.FP), new ImcCONST(aa.offset))));
 			}
+			SemType t = SemDesc.getActualType(aa.var);
+			if(t instanceof SemArrayType || t instanceof SemRecordType) {
+				setResult(new ImcMEM((ImcExpr)getResult()));
+			}
+				
 		}
 		if(a instanceof FrmLocAccess) {
 			FrmLocAccess la = (FrmLocAccess)a;
@@ -336,10 +341,15 @@ public class IMCodeGenerator implements AbsVisitor {
 			}
 		}
 		if(d instanceof AbsFunDecl) {
+			AbsFunDecl fd = (AbsFunDecl)d;
+			SemType t = SemDesc.getActualType(fd);
 			if(noMem) {
 				setResult(new ImcTEMP(f.RV));
 			} else {
 				setResult(new ImcMEM(new ImcTEMP(f.RV)));
+			}
+			if(t instanceof SemArrayType || t instanceof SemRecordType) {
+				setResult(new ImcMEM((ImcExpr)getResult()));
 			}
 		}
 		if(d instanceof AbsConstDecl) {
