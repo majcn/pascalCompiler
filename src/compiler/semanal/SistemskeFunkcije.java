@@ -6,6 +6,7 @@ import compiler.abstree.tree.AbsDeclName;
 import compiler.abstree.tree.AbsDecls;
 import compiler.abstree.tree.AbsFunDecl;
 import compiler.abstree.tree.AbsProcDecl;
+import compiler.abstree.tree.AbsTypeExpr;
 import compiler.abstree.tree.AbsVarDecl;
 import compiler.semanal.type.SemAtomType;
 
@@ -19,6 +20,7 @@ public class SistemskeFunkcije {
 		AbsDeclName name = null;
 		AbsDecls pars = null;
 		AbsDecl par = null;
+		AbsTypeExpr type = null;
 		
 		//putch
 		name = new AbsDeclName("putch");
@@ -36,8 +38,10 @@ public class SistemskeFunkcije {
 		par = new AbsVarDecl(name, new AbsAtomType(AbsAtomType.INT));
 		SemDesc.setActualType(par, new SemAtomType(SemAtomType.INT));
 		pars.decls.add(par);
+		type = new AbsAtomType(AbsAtomType.CHAR);
+		SemDesc.setActualType(type, new SemAtomType(SemAtomType.CHAR));
 		try {
-			SemTable.ins(name.name, new AbsFunDecl(name, pars, new AbsAtomType(AbsAtomType.CHAR) ,null, null));
+			SemTable.ins(name.name, new AbsFunDecl(name, pars, type ,null, null));
 		} catch (SemIllegalInsertException e1) {}
 		
 		//putint

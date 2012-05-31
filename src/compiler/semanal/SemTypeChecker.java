@@ -133,7 +133,7 @@ public class SemTypeChecker implements AbsVisitor {
 		SemType a = SemDesc.getActualType(acceptor.fstExpr);
 		SemType b = SemDesc.getActualType(acceptor.sndExpr);
 		
-		if(acceptor.fstExpr instanceof AbsCallExpr) {
+		/*if(acceptor.fstExpr instanceof AbsCallExpr) {
 			AbsCallExpr callExpr = (AbsCallExpr)acceptor.fstExpr;
 			if(SemDesc.getNameDecl(callExpr.name) instanceof AbsFunDecl) {
 				AbsFunDecl funDecl = (AbsFunDecl)SemDesc.getNameDecl(callExpr.name);
@@ -141,7 +141,7 @@ public class SemTypeChecker implements AbsVisitor {
 			} else {
 				warningMsgWrongCall(callExpr.begLine, callExpr.name.name, true);
 			}
-		}
+		}*/
 
 		if(acceptor.oper == AbsBinExpr.RECACCESS) {
 			if(acceptor.sndExpr instanceof AbsValName) {
@@ -223,11 +223,14 @@ public class SemTypeChecker implements AbsVisitor {
 	public void visit(AbsCallExpr acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsCallExpr");
 		acceptor.name.accept(this);
-		acceptor.args.accept(this);
 		
 		AbsDecl a = SemDesc.getNameDecl(acceptor.name);
 		if(a instanceof AbsFunDecl && procCall)
 			warningMsgWrongCall(acceptor.begLine, acceptor.name.name, false);
+		procCall = false;
+		
+		acceptor.args.accept(this);
+
 		if(a instanceof AbsFunDecl) {
 			AbsFunDecl aa = (AbsFunDecl)a;
 			if(aa.pars.decls.size() == acceptor.args.exprs.size()) {
@@ -236,6 +239,7 @@ public class SemTypeChecker implements AbsVisitor {
 						warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
 					}
 				}
+				SemDesc.setActualType(acceptor, SemDesc.getActualType(aa.type));
 			} else {
 				warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
 			}
@@ -252,8 +256,6 @@ public class SemTypeChecker implements AbsVisitor {
 				warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
 			}
 		}
-		
-		procCall = false;
 	}
 
 	@Override
