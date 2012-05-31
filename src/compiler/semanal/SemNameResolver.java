@@ -38,9 +38,12 @@ public class SemNameResolver implements AbsVisitor {
 	@Override
 	public void visit(AbsArrayType acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsArrayType");
+		int tempRecord = record;
+		record = 0;
 		acceptor.type.accept(this);
 		acceptor.loBound.accept(this);
 		acceptor.hiBound.accept(this);
+		record = tempRecord;
 	}
 
 	@Override
@@ -214,6 +217,8 @@ public class SemNameResolver implements AbsVisitor {
 	@Override
 	public void visit(AbsProgram acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsProgram");
+		SistemskeFunkcije.fillData();
+		
 		acceptor.decls.accept(this);
 		acceptor.stmt.accept(this);
 	}

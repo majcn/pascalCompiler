@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import compiler.abstree.AbsVisitor;
 import compiler.abstree.tree.*;
 import compiler.semanal.SemDesc;
+import compiler.semanal.SistemskeFunkcije;
 import compiler.semanal.type.*;
 import compiler.frames.*;
 
@@ -27,7 +28,7 @@ public class IMCodeGenerator implements AbsVisitor {
 	public void visit(AbsAlloc acceptor) {
 		SemType t = SemDesc.getActualType(acceptor.type);
 		ImcCALL c = new ImcCALL(FrmLabel.newLabel("malloc"));
-		c.args.add(new ImcCONST(t.size())); //fake FP
+		c.args.add(new ImcCONST(SistemskeFunkcije.FAKE_FP));
 		c.size.add(4);
 		c.args.add(new ImcCONST(t.size()));
 		c.size.add(4);
@@ -131,10 +132,17 @@ public class IMCodeGenerator implements AbsVisitor {
 
 	@Override
 	public void visit(AbsCallExpr acceptor) {
-		FrmFrame f = FrmDesc.getFrame(SemDesc.getNameDecl(acceptor.name));
-		ImcCALL c = new ImcCALL(f.label);
-		c.args.add(new ImcTEMP(f.FP));
-		c.size.add(4);
+		ImcCALL c = null;
+		if(SistemskeFunkcije.isFunction(acceptor.name.name) || SistemskeFunkcije.isProcedure(acceptor.name.name)) {
+			c = new ImcCALL(FrmLabel.newLabel(acceptor.name.name));
+			c.args.add(new ImcCONST(SistemskeFunkcije.FAKE_FP));
+			c.size.add(4);
+		} else {
+			FrmFrame f = FrmDesc.getFrame(SemDesc.getNameDecl(acceptor.name));
+			c = new ImcCALL(f.label);
+			c.args.add(new ImcTEMP(f.FP));
+			c.size.add(4);
+		}
 		for(AbsValExpr e: acceptor.args.exprs) {
 			e.accept(this);
 			c.args.add((ImcExpr)getResult());
