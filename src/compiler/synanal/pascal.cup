@@ -655,7 +655,7 @@ kPodprograma ::=
 koParametrov ::=
 	oVrednosti:expr COMMA koParametrov:valExprs
 	{:
-		valExprs.exprs.add(expr);
+		valExprs.exprs.addFirst(expr);
 		valExprs.setEnd(expr);
 		RESULT = valExprs;
 	:}
