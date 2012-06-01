@@ -140,6 +140,7 @@ public class FrmEvaluator implements AbsVisitor {
 		int callArgsSize = 4 * acceptor.args.exprs.size() + 4;
 		if(curFrame.sizeArgs < callArgsSize)
 			curFrame.sizeArgs = callArgsSize;
+		acceptor.args.accept(this);
 	}
 
 	@Override

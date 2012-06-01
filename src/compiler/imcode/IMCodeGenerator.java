@@ -13,6 +13,8 @@ public class IMCodeGenerator implements AbsVisitor {
 
 	public LinkedList<ImcChunk> chunks = new LinkedList<ImcChunk>();
 	
+	private FrmFrame curFrame = null;
+	
 	private ImcCode result;
 	private ImcCode getResult() {
 		ImcCode temp = result;
@@ -140,7 +142,7 @@ public class IMCodeGenerator implements AbsVisitor {
 		} else {
 			FrmFrame f = FrmDesc.getFrame(SemDesc.getNameDecl(acceptor.name));
 			c = new ImcCALL(f.label);
-			c.args.add(new ImcTEMP(f.FP));
+			c.args.add(new ImcTEMP(curFrame.FP));
 			c.size.add(4);
 		}
 		for(AbsValExpr e: acceptor.args.exprs) {
@@ -205,9 +207,12 @@ public class IMCodeGenerator implements AbsVisitor {
 	@Override
 	public void visit(AbsFunDecl acceptor) {
 		FrmFrame f = FrmDesc.getFrame(acceptor);
+		FrmFrame tmpFrm = curFrame;
+		curFrame = f;
 		acceptor.stmt.accept(this);
 		chunks.add(new ImcCodeChunk(f, (ImcStmt)getResult()));
-		acceptor.decls.accept(this);		
+		acceptor.decls.accept(this);
+		curFrame = tmpFrm;
 	}
 
 	@Override
@@ -245,14 +250,18 @@ public class IMCodeGenerator implements AbsVisitor {
 	@Override
 	public void visit(AbsProcDecl acceptor) {
 		FrmFrame f = FrmDesc.getFrame(acceptor);
+		FrmFrame tmpFrm = curFrame;
+		curFrame = f;
 		acceptor.stmt.accept(this);
 		chunks.add(new ImcCodeChunk(f, (ImcStmt)getResult()));
 		acceptor.decls.accept(this);
+		curFrame = tmpFrm;
 	}
 
 	@Override
 	public void visit(AbsProgram acceptor) {
 		FrmFrame f = FrmDesc.getFrame(acceptor);
+		curFrame = f;
 		acceptor.stmt.accept(this);
 		chunks.add(new ImcCodeChunk(f, (ImcStmt)getResult()));
 		
@@ -352,11 +361,7 @@ public class IMCodeGenerator implements AbsVisitor {
 		if(d instanceof AbsFunDecl) {
 			AbsFunDecl fd = (AbsFunDecl)d;
 			SemType t = SemDesc.getActualType(fd);
-			if(noMem) {
-				setResult(new ImcTEMP(f.RV));
-			} else {
-				setResult(new ImcMEM(new ImcTEMP(f.RV)));
-			}
+			setResult(new ImcTEMP(f.RV));
 			if(t instanceof SemArrayType || t instanceof SemRecordType) {
 				setResult(new ImcMEM((ImcExpr)getResult()));
 			}
