@@ -230,6 +230,15 @@ public class SemTypeChecker implements AbsVisitor {
 		procCall = false;
 		
 		acceptor.args.accept(this);
+		
+		if(acceptor.name.name.equals("free")) {
+			AbsProcDecl aa = (AbsProcDecl)a;
+			if(aa.pars.decls.size() == acceptor.args.exprs.size() && SemDesc.getActualType(acceptor.args.exprs.get(0)) instanceof SemPointerType) {
+				return;
+			}
+			warningMsgWrongArgs(acceptor.begLine, acceptor.name.name);
+			return;
+		}
 
 		if(a instanceof AbsFunDecl) {
 			AbsFunDecl aa = (AbsFunDecl)a;
