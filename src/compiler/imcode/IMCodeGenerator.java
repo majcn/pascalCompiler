@@ -135,6 +135,7 @@ public class IMCodeGenerator implements AbsVisitor {
 	@Override
 	public void visit(AbsCallExpr acceptor) {
 		ImcCALL c = null;
+		ImcExpr ex = null;
 		if(SistemskeFunkcije.isFunction(acceptor.name.name) || SistemskeFunkcije.isProcedure(acceptor.name.name)) {
 			c = new ImcCALL(FrmLabel.newLabel(acceptor.name.name));
 			c.args.add(new ImcCONST(SistemskeFunkcije.FAKE_FP));
@@ -147,6 +148,12 @@ public class IMCodeGenerator implements AbsVisitor {
 		}
 		for(AbsValExpr e: acceptor.args.exprs) {
 			e.accept(this);
+			if(SemDesc.getActualType(e) instanceof SemRecordType || SemDesc.getActualType(e) instanceof SemArrayType) {
+				ex = (ImcExpr)getResult();
+				if(ex instanceof ImcMEM) {
+					setResult(((ImcMEM)ex).expr);
+				}
+			}
 			c.args.add((ImcExpr)getResult());
 			c.size.add(4); //SemDesc.getActualType(e).size()
 		}
