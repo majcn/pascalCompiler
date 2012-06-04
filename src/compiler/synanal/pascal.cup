@@ -49,6 +49,7 @@ precedence left MUL, DIV ;
 precedence nonassoc NOT ;
 precedence nonassoc VAL ;
 precedence nonassoc UADD, USUB, MEM ;
+precedence nonassoc PTR ;
 precedence left DOT, LBRACKET, RBRACKET ;
 
 start with koda ;
