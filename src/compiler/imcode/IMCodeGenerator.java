@@ -346,23 +346,29 @@ public class IMCodeGenerator implements AbsVisitor {
 		}
 		if(a instanceof FrmArgAccess) {
 			FrmArgAccess aa = (FrmArgAccess)a;
+			ImcExpr t = new ImcTEMP(curFrame.FP);
+			for(int i=0; i<curFrame.level - aa.frame.level; i++)
+				t = new ImcMEM(t);
 			if(noMem) {
-				setResult(new ImcBINOP(ImcBINOP.ADD, new ImcTEMP(aa.frame.FP), new ImcCONST(aa.offset)));
+				setResult(new ImcBINOP(ImcBINOP.ADD, t, new ImcCONST(aa.offset)));
 			} else {
-				setResult(new ImcMEM(new ImcBINOP(ImcBINOP.ADD, new ImcTEMP(aa.frame.FP), new ImcCONST(aa.offset))));
+				setResult(new ImcMEM(new ImcBINOP(ImcBINOP.ADD, t, new ImcCONST(aa.offset))));
 			}
-			SemType t = SemDesc.getActualType(aa.var);
-			if(t instanceof SemArrayType || t instanceof SemRecordType) {
+			SemType type = SemDesc.getActualType(aa.var);
+			if(type instanceof SemArrayType || type instanceof SemRecordType) {
 				setResult(new ImcMEM((ImcExpr)getResult()));
 			}
 				
 		}
 		if(a instanceof FrmLocAccess) {
 			FrmLocAccess la = (FrmLocAccess)a;
+			ImcExpr t = new ImcTEMP(curFrame.FP);
+			for(int i=0; i<curFrame.level - la.frame.level; i++)
+				t = new ImcMEM(t);
 			if(noMem) {
-				setResult(new ImcBINOP(ImcBINOP.ADD, new ImcTEMP(la.frame.FP), new ImcCONST(la.offset)));
+				setResult(new ImcBINOP(ImcBINOP.ADD, t, new ImcCONST(la.offset)));
 			} else {
-				setResult(new ImcMEM(new ImcBINOP(ImcBINOP.ADD, new ImcTEMP(la.frame.FP), new ImcCONST(la.offset))));
+				setResult(new ImcMEM(new ImcBINOP(ImcBINOP.ADD, t, new ImcCONST(la.offset))));
 			}
 		}
 		if(d instanceof AbsFunDecl) {
