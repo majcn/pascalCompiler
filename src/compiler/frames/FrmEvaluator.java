@@ -98,10 +98,7 @@ public class FrmEvaluator implements AbsVisitor {
 	}
 	
 	public void visit(AbsVarDecl acceptor) {
-		if(acceptor.type instanceof AbsTypeName)
-			SemDesc.getNameDecl(acceptor.type).accept(this);
-		else
-			acceptor.type.accept(this);
+		acceptor.type.accept(this);
 	}
 
 	@Override
@@ -191,6 +188,7 @@ public class FrmEvaluator implements AbsVisitor {
 
 	@Override
 	public void visit(AbsTypeName acceptor) {
+		SemDesc.getNameDecl(acceptor).accept(this);
 	}
 
 	@Override
