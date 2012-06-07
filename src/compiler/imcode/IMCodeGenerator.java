@@ -1,8 +1,6 @@
 package compiler.imcode;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-
 import compiler.abstree.AbsVisitor;
 import compiler.abstree.tree.*;
 import compiler.semanal.SemDesc;
@@ -144,13 +142,12 @@ public class IMCodeGenerator implements AbsVisitor {
 		} else {
 			FrmFrame f = FrmDesc.getFrame(SemDesc.getNameDecl(acceptor.name));
 			c = new ImcCALL(f.label);
-			if(curFrame == f) {
-				c.args.add(new ImcMEM(new ImcTEMP(curFrame.FP)));
-				c.size.add(4);
-			} else {
-				c.args.add(new ImcTEMP(curFrame.FP));
-				c.size.add(4);
+			ex = new ImcTEMP(curFrame.FP);
+			for (int i = curFrame.level; i >= f.level; i--){
+				ex = new ImcMEM(ex);
 			}
+			c.args.add(ex);
+			c.size.add(4);
 		}
 		for(AbsValExpr e: acceptor.args.exprs) {
 			e.accept(this);
