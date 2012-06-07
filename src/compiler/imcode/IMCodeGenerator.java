@@ -144,8 +144,13 @@ public class IMCodeGenerator implements AbsVisitor {
 		} else {
 			FrmFrame f = FrmDesc.getFrame(SemDesc.getNameDecl(acceptor.name));
 			c = new ImcCALL(f.label);
-			c.args.add(new ImcTEMP(curFrame.FP));
-			c.size.add(4);
+			if(curFrame == f) {
+				c.args.add(new ImcMEM(new ImcTEMP(curFrame.FP)));
+				c.size.add(4);
+			} else {
+				c.args.add(new ImcTEMP(curFrame.FP));
+				c.size.add(4);
+			}
 		}
 		for(AbsValExpr e: acceptor.args.exprs) {
 			e.accept(this);
