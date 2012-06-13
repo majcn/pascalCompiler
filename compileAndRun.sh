@@ -4,7 +4,7 @@ JFLEX=/usr/bin/jflex
 
 if [ $# -ne 1 ]
 then
-  echo "Manjka argument: ImePrograma | clean"
+  echo "Manjka argument: ImePrograma | compile | clean"
   exit 1
 fi
 
@@ -18,6 +18,20 @@ then
   exit 0
 fi
 
+if [ "$1" == "compile" ]
+  $JFLEX --nobak src/compiler/lexanal/pascal.jflex
+  java -jar $JAVACUP -package synanal -parser PascalSyn -symbols PascalTok -nonterms -expect 1 src/compiler/synanal/pascal.cup
+  mv PascalTok.java src/compiler/synanal/PascalTok.java
+  mv PascalSyn.java src/compiler/synanal/PascalSyn.java
+
+  if [ ! -d "bin" ]; then
+    mkdir bin
+  fi
+  javac -d bin -cp src src/compiler/Main.java
+  echo "Uspesno generiranje datotek"
+  exit 0
+fi
+
 PROGNAME=`basename -s .pascal $1`
 if [ ! -f "$PROGNAME"".pascal" ]
 then
@@ -25,18 +39,7 @@ then
   exit 1
 fi
 
-$JFLEX --nobak src/compiler/lexanal/pascal.jflex
-java -jar $JAVACUP -package synanal -parser PascalSyn -symbols PascalTok -nonterms -expect 1 src/compiler/synanal/pascal.cup
-mv PascalTok.java src/compiler/synanal/PascalTok.java
-mv PascalSyn.java src/compiler/synanal/PascalSyn.java
-
-if [ ! -d "bin" ]; then
-    mkdir bin
-fi
-javac -d bin -cp src src/compiler/Main.java
-
 export PASCALXSL=xsl
-
 java -cp bin/java_cup/runtime:$JAVACUP:bin/compiler/.. compiler.Main $PROGNAME semanal > /dev/null
 java -cp bin/java_cup/runtime:$JAVACUP:bin/compiler/.. compiler.Main $PROGNAME frames > /dev/null
 java -cp bin/java_cup/runtime:$JAVACUP:bin/compiler/.. compiler.Main $PROGNAME imcode > /dev/null
