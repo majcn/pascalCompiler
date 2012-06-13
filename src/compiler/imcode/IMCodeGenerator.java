@@ -210,7 +210,7 @@ public class IMCodeGenerator implements AbsVisitor {
 		acceptor.stmt.accept(this);
 		s.stmts.add((ImcStmt)getResult());
 		s.stmts.add(new ImcMOVE(ne, new ImcBINOP(ImcBINOP.ADD, ne, new ImcCONST(1))));
-		s.stmts.add(new ImcJUMP(sl.label));
+		s.stmts.add(new ImcCJUMP(new ImcBINOP(ImcBINOP.EQU, new ImcCONST(1), new ImcCONST(1)), sl.label, fl.label));
 		s.stmts.add(fl);
 		
 		setResult(s);
@@ -242,7 +242,7 @@ public class IMCodeGenerator implements AbsVisitor {
 		s.stmts.add(tl);
 		acceptor.thenStmt.accept(this);
 		s.stmts.add((ImcStmt)getResult());
-		s.stmts.add(new ImcJUMP(el.label));
+		s.stmts.add(new ImcCJUMP(new ImcBINOP(ImcBINOP.EQU, new ImcCONST(1), new ImcCONST(1)), el.label, fl.label));
 		s.stmts.add(fl);
 		acceptor.elseStmt.accept(this);
 		s.stmts.add((ImcStmt)getResult());
@@ -410,7 +410,7 @@ public class IMCodeGenerator implements AbsVisitor {
 		s.stmts.add(tl);
 		acceptor.stmt.accept(this);
 		s.stmts.add((ImcStmt)getResult());
-		s.stmts.add(new ImcJUMP(sl.label));
+		s.stmts.add(new ImcCJUMP(new ImcBINOP(ImcBINOP.EQU, new ImcCONST(1), new ImcCONST(1)), sl.label, fl.label));
 		s.stmts.add(fl);
 		
 		setResult(s);
