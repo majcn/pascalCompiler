@@ -28,6 +28,11 @@ public class SemNameResolver implements AbsVisitor {
 		Report.warning(String.format("line %d: division by zero", line));
 		error = true;
 	}
+	
+	public void warningMsgCapsTypeName(int line, String name) {
+		Report.warning(String.format("line %d: '%s' rename to '%s'", line, name, name.toUpperCase().charAt(0) + name.substring(1)));
+		error = true;
+	}
 
 	@Override
 	public void visit(AbsAlloc acceptor) {
@@ -247,6 +252,9 @@ public class SemNameResolver implements AbsVisitor {
 			} catch (SemIllegalInsertException e) {
 				warningMsgRedefined(acceptor.begLine, acceptor.name.name);
 			}
+		}
+		if(acceptor.name.name.charAt(0) != acceptor.name.name.toUpperCase().charAt(0)) {
+			warningMsgCapsTypeName(acceptor.begLine, acceptor.name.name);
 		}
 		acceptor.type.accept(this);
 	}
