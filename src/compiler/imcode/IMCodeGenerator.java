@@ -24,6 +24,8 @@ public class IMCodeGenerator implements AbsVisitor {
 		this.result = result;
 	}
 	private LinkedList<Boolean> noMem = new LinkedList<Boolean>();
+	
+	private ImcLABEL endl = null;
 
 	@Override
 	public void visit(AbsAlloc acceptor) {
@@ -264,8 +266,13 @@ public class IMCodeGenerator implements AbsVisitor {
 		FrmFrame f = FrmDesc.getFrame(acceptor);
 		FrmFrame tmpFrm = curFrame;
 		curFrame = f;
+		endl = new ImcLABEL(FrmLabel.newLabel());
 		acceptor.stmt.accept(this);
-		chunks.add(new ImcCodeChunk(f, (ImcStmt)getResult()));
+		ImcStmt res = (ImcStmt)getResult();
+		ImcSEQ s = new ImcSEQ();
+		s.stmts.add(res);
+		s.stmts.add(endl);
+		chunks.add(new ImcCodeChunk(f, s));
 		acceptor.decls.accept(this);
 		curFrame = tmpFrm;
 	}
@@ -414,6 +421,10 @@ public class IMCodeGenerator implements AbsVisitor {
 		s.stmts.add(fl);
 		
 		setResult(s);
+	}
+	@Override
+	public void visit(AbsReturnStmt acceptor) {
+		setResult(new ImcJUMP(endl.label));
 	}
 
 }

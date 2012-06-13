@@ -4,6 +4,7 @@ import compiler.abstree.tree.*;
 
 public interface AbsVisitor {
 
+	public void visit(AbsReturnStmt acceptor);
 	public void visit(AbsAlloc acceptor);
 	public void visit(AbsArrayType acceptor);
 	public void visit(AbsAssignStmt acceptor);

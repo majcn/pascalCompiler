@@ -320,5 +320,9 @@ public class SemNameResolver implements AbsVisitor {
 		acceptor.cond.accept(this);
 		acceptor.stmt.accept(this);
 	}
+
+	@Override
+	public void visit(AbsReturnStmt acceptor) {
+	}
 	
 }

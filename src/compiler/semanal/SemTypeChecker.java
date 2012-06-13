@@ -23,6 +23,7 @@ public class SemTypeChecker implements AbsVisitor {
 		return record == 0;
 	}
 	
+	private boolean canReturn = false;
 	private boolean procCall = false;
 	
 	public void warningMsgWrongType(int line, String oper) {
@@ -46,6 +47,11 @@ public class SemTypeChecker implements AbsVisitor {
 	public void warningMsgRedefined(int line, String name) {
 		Report.warning(String.format("line %d: '%s' is redefined", line, name));
 		error = true;
+	}
+	
+	public void warningMsgCantReturn(int line) {
+		Report.warning(String.format("line %d: 'return' need to be in procedure", line));
+		error = true;		
 	}
 
 	@Override
@@ -357,7 +363,9 @@ public class SemTypeChecker implements AbsVisitor {
 		if(debug) System.out.println(acceptor.begLine + " AbsProcDecl");
 		acceptor.pars.accept(this);
 		acceptor.decls.accept(this);
+		canReturn = true;
 		acceptor.stmt.accept(this);
+		canReturn = false;
 	}
 
 	@Override
@@ -485,6 +493,14 @@ public class SemTypeChecker implements AbsVisitor {
 		if (!a.coercesTo(typeBool)) {
 			warningMsgWrongType(acceptor.begLine, "WHILE");
 		}
+	}
+
+	@Override
+	public void visit(AbsReturnStmt acceptor) {
+		if(!canReturn) {
+			warningMsgCantReturn(acceptor.begLine);
+		}
+			
 	}
 
 }
