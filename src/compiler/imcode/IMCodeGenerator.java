@@ -415,5 +415,23 @@ public class IMCodeGenerator implements AbsVisitor {
 		
 		setResult(s);
 	}
+	@Override
+	public void visit(AbsRepeatStmt acceptor) {
+		ImcSEQ s = new ImcSEQ();
+		
+		acceptor.cond.accept(this);
+		ImcExpr ce = (ImcExpr)getResult();
+		
+		ImcLABEL fl = new ImcLABEL(FrmLabel.newLabel());
+		ImcLABEL sl = new ImcLABEL(FrmLabel.newLabel());
+		
+		s.stmts.add(sl);
+		acceptor.stmt.accept(this);
+		s.stmts.add((ImcStmt)getResult());
+		s.stmts.add(new ImcCJUMP(ce, sl.label, fl.label));
+		s.stmts.add(fl);
+		
+		setResult(s);
+	}
 
 }

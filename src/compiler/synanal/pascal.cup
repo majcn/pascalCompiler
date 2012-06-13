@@ -26,7 +26,7 @@ terminal String IDENTIFIER ;
 terminal String BOOL, CHAR, INT ;
 terminal String COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS, SEMIC ;
 terminal String ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL ;
-terminal String ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE ;
+terminal String ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE, REPEAT, UNTIL ;
 
 non terminal AbsProgram koda ;
 non terminal AbsDecls dSkupaj, dKonstant, dpKonstant, dTipov, dpTipov, dSpremenljivk, dpSpremenljivk, dPodprogramov, oParametrov, opParametrovVar, opParametrovType ;
@@ -697,6 +697,14 @@ stavek ::=
 		AbsWhileStmt r = new AbsWhileStmt(cond, stmt);
 		r.setBeg(b, bleft, bright);
 		r.setEnd(stmt);
+		RESULT = r;
+	:}
+	|
+	REPEAT:b stavek:stmt UNTIL oVrednosti:cond
+	{:
+		AbsRepeatStmt r = new AbsRepeatStmt(stmt, cond);
+		r.setBeg(b, bleft, bright);
+		r.setEnd(cond);
 		RESULT = r;
 	:}
 	|

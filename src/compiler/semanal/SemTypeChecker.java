@@ -487,4 +487,16 @@ public class SemTypeChecker implements AbsVisitor {
 		}
 	}
 
+	@Override
+	public void visit(AbsRepeatStmt acceptor) {
+		acceptor.cond.accept(this);
+		acceptor.stmt.accept(this);
+		
+		SemType a = SemDesc.getActualType(acceptor.cond);
+		if(a==null) return;
+		if (!a.coercesTo(typeBool)) {
+			warningMsgWrongType(acceptor.begLine, "REPEAT");
+		}
+	}
+
 }

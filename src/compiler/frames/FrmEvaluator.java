@@ -213,4 +213,10 @@ public class FrmEvaluator implements AbsVisitor {
 		acceptor.cond.accept(this);
 		acceptor.stmt.accept(this);
 	}
+
+	@Override
+	public void visit(AbsRepeatStmt acceptor) {
+		acceptor.cond.accept(this);
+		acceptor.stmt.accept(this);
+	}
 }
