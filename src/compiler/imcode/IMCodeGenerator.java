@@ -58,7 +58,7 @@ public class IMCodeGenerator implements AbsVisitor {
 			value = (acceptor.value.equals("true")) ? 1 : 0;
 			break;
 		case AbsAtomConst.CHAR:
-			value = (int)acceptor.value.charAt(1);
+			value = Integer.parseInt(acceptor.value.substring(1, acceptor.value.length()-2), acceptor.value.charAt(acceptor.value.length()-2) == 'd' ? 10 : 16);
 			break;
 		case AbsAtomConst.INT:
 			value = Integer.parseInt(acceptor.value);
