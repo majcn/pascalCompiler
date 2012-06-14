@@ -99,6 +99,7 @@ identifier = {letter}({letter}|{digit}|[_])*
 	"<>"			{ return sym(PascalTok.NEQ); }
 	"^"				{ return sym(PascalTok.PTR); }
 	"-"				{ return sym(PascalTok.SUB); }
+	"?"             { return sym(PascalTok.QUESTIONMARK); }
 
 	"boolean"		{ return sym(PascalTok.BOOL); }
 	{boolean}		{ return sym(PascalTok.BOOL_CONST); }

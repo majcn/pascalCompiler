@@ -25,7 +25,7 @@ terminal String IDENTIFIER ;
 
 terminal String BOOL, CHAR, INT ;
 terminal String COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS, SEMIC ;
-terminal String ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL ;
+terminal String ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL, QUESTIONMARK ;
 terminal String ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE ;
 
 non terminal AbsProgram koda ;
@@ -41,6 +41,7 @@ non terminal AbsStmts stavki ;
 non terminal AbsIfStmt ifStavek ;
 non terminal AbsBlockStmt sStavek ;
 
+precedence nonassoc QUESTIONMARK;
 precedence left OR ;
 precedence left AND ;
 precedence nonassoc EQU, NEQ, LTH, GTH, LEQ, GEQ ;
@@ -410,6 +411,14 @@ opParametrovType ::=
 	:} ;
 
 oVrednosti ::=
+	oVrednosti:exprCond QUESTIONMARK oVrednosti:exprTrue COLON oVrednosti:exprFalse
+	{:
+		AbsQuestionExpr r = new AbsQuestionExpr(exprCond, exprTrue, exprFalse);
+		r.setBeg(exprCond);
+		r.setEnd(exprFalse);
+		RESULT = r;
+	:}
+    |
 	BOOL_CONST:value
 	{:
 		AbsAtomConst r = new AbsAtomConst(value, AbsAtomConst.BOOL);

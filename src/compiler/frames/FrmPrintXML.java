@@ -427,4 +427,14 @@ public class FrmPrintXML implements AbsVisitor {
 		xml.print("</absnode>\n");
 	}
 
+	@Override
+	public void visit(AbsQuestionExpr acceptor) {
+		if (acceptor.error) { xml.print("<abserror kind=\"QuestionExpr\"/>\n"); return; }
+		xml.print("<absnode " + printPos(acceptor) + " kind=\"QuestionExpr\">\n");
+		acceptor.exprCond.accept(this);
+		acceptor.exprTrue.accept(this);
+		acceptor.exprTrue.accept(this);
+		xml.print("</absnode>\n");
+	}
+
 }
