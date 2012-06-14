@@ -9,7 +9,7 @@ public class SemTable {
 
 	private static HashMap<String, LinkedList<AbsDecl>> mapping = new HashMap<String, LinkedList<AbsDecl>>();
 
-	private static int scope = 0;
+	public static int scope = 0;
 
 	public static void newScope() {
 		scope++;
@@ -72,6 +72,17 @@ public class SemTable {
 		if (allNameDecls.size() == 0)
 			return null;
 		return allNameDecls.getFirst();
+	}
+	
+	public static AbsDecl fnd(String name, int index) {
+		LinkedList<AbsDecl> allNameDecls = mapping.get(name);
+		if (allNameDecls == null)
+			return null;
+		if (allNameDecls.size() == 0)
+			return null;
+		if (allNameDecls.size() <= index)
+			return null;
+		return allNameDecls.get(index);
 	}
 
 }

@@ -13,9 +13,18 @@ public class AbsVarDecl extends AbsDecl {
 	/** Tip spremenljivke. */
 	public AbsTypeExpr type;
 	
+	public boolean isPrivate;
+	
+	public AbsVarDecl(AbsDeclName name, AbsTypeExpr type, boolean isPrivate) {
+		this.name = name;
+		this.type = type;
+		this.isPrivate = isPrivate;
+	}
+	
 	public AbsVarDecl(AbsDeclName name, AbsTypeExpr type) {
 		this.name = name;
 		this.type = type;
+		this.isPrivate = false;
 	}
 
 	public void accept(AbsVisitor visitor) {

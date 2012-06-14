@@ -20,12 +20,17 @@ public class SemNameResolver implements AbsVisitor {
 	}
 	
 	public void warningMsgUndefined(int line, String name) {
-		Report.warning(String.format("line %d: '%s' is undefined", line, name));
+		Report.warning(String.format("line %d: '%s' is undefined or private", line, name));
 		error = true;
 	}
 	
 	public void warningMsgDivisionByZero(int line) {
 		Report.warning(String.format("line %d: division by zero", line));
+		error = true;
+	}
+	
+	public void warningMsgPrivateLocal(int line) {
+		Report.warning(String.format("line %d: 'private' must be local", line));
 		error = true;
 	}
 
@@ -291,7 +296,19 @@ public class SemNameResolver implements AbsVisitor {
 	public void visit(AbsValName acceptor) {
 		if(debug) System.out.println(acceptor.begLine + " AbsValName");
 		if(notRecord()) {
-			AbsDecl decl = SemTable.fnd(acceptor.name);
+			AbsDecl decl = null;
+			for(int i=0; SemTable.fnd(acceptor.name, i) != null; i++) {
+				decl = SemTable.fnd(acceptor.name, i);
+				if(decl instanceof AbsVarDecl && ((AbsVarDecl)decl).isPrivate) {
+					if(SemDesc.getScope(decl) != SemTable.scope) {
+						decl = null;
+					} else {
+						break;
+					}
+				} else {
+					break;
+				}
+			}
 			if(decl == null) {
 				warningMsgUndefined(acceptor.begLine, acceptor.name);
 			} else {
@@ -310,6 +327,9 @@ public class SemNameResolver implements AbsVisitor {
 			SemTable.ins(acceptor.name.name, acceptor);
 		} catch (SemIllegalInsertException e) {
 			warningMsgRedefined(acceptor.begLine, acceptor.name.name);
+		}
+		if(acceptor.isPrivate && SemDesc.getScope(acceptor) == 0) {
+			warningMsgPrivateLocal(acceptor.begLine);
 		}
 		acceptor.type.accept(this);
 	}
