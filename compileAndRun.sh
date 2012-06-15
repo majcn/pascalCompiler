@@ -30,7 +30,7 @@ if [ "$1" == "compile" ]; then
   exit 0
 fi
 
-PROGNAME=`basename -s .pascal $1`
+PROGNAME=`dirname $1`"/"`basename -s .pascal $1`
 if [ ! -f "$PROGNAME"".pascal" ]; then
   echo "'$PROGNAME"".pascal'" "ne obstaja"
   exit 1
